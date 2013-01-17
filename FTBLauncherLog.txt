@@ -1,14 +1,15 @@
-[16:55:16] [INFO] OptionsPane.<init>:157: [i18n] Added 0 enUS to options pane
-[16:55:16] [INFO] I18N.setLocale:157: [i18n] enUS English language file loaded!
-[16:55:17] [INFO] ModpackLoader.run:57: C:\Users\Thijn\AppData\Roaming\minelordlauncher\ModPacks\modpacks.xml
-[16:55:17] [INFO] ModpackLoader.run:67: Loading modpack information for modpacks.xml...
-[16:55:17] [INFO] ModpacksPane.onModPackAdded:307: Adding pack 1
-[16:55:17] [INFO] MapLoader.run:45: loading map information...
-[16:55:17] [INFO] TexturePackLoader.run:40: loading texture pack information...
-[16:55:17] [INFO] TexturePack.<init>:86: Soartex FanverThe Soartex Team1Soartex.zipsmall_soartex.pngbig_soartex.png1.4.6Minelord Mod PackSoartex Fanver texture pack.640
-[16:55:17] [INFO] TexturepackPane.onTexturePackAdded:223: Adding texture pack 1
-[16:55:17] [ERROR] TexturepackPane.updateTexturePacks:262->TexturePackLoader.run:58: null: java.lang.NullPointerException
-net.minelord.gui.panes.TexturepackPane.updateTexturePacks(TexturepackPane.java:262)
+[19:22:57] [INFO] OptionsPane.<init>:157: [i18n] Added 0 enUS to options pane
+[19:22:57] [INFO] I18N.setLocale:157: [i18n] enUS English language file loaded!
+[19:22:57] [INFO] ModpackLoader.run:57: C:\Users\dell\AppData\Roaming\minelordlauncher\ModPacks\modpacks.xml
+[19:22:58] [INFO] ModpackLoader.run:67: Loading modpack information for modpacks.xml...
+[19:22:58] [INFO] ModpacksPane.onModPackAdded:279: Adding pack 1
+[19:22:58] [INFO] MapLoader.run:45: loading map information...
+[19:22:58] [INFO] TexturePackLoader.run:40: loading texture pack information...
+[19:22:58] [INFO] TexturePack.<init>:86: Soartex FanverThe Soartex Team1Soartex.zipsmall_soartex.pngbig_soartex.png1.4.6Minelord Mod PackSoartex Fanver texture pack.640
+[19:22:58] [INFO] TexturepackPane.onTexturePackAdded:223: Adding texture pack 1
+[19:22:58] [INFO] TexturepackPane.updateTexturePacks:260: [Ljava.lang.String;@115d0f69
+[19:22:58] [ERROR] TexturepackPane.updateTexturePacks:263->TexturePackLoader.run:58: null: java.lang.NullPointerException
+net.minelord.gui.panes.TexturepackPane.updateTexturePacks(TexturepackPane.java:263)
 net.minelord.gui.panes.TexturepackPane.onTexturePackAdded(TexturepackPane.java:224)
 net.minelord.data.TexturePack.addTexturePack(TexturePack.java:65)
 net.minelord.workers.TexturePackLoader.run(TexturePackLoader.java:50)

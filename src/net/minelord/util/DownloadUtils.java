@@ -55,30 +55,8 @@ public class DownloadUtils extends Thread
 	public static String getMinelordLink(String file) throws NoSuchAlgorithmException
 	{
 		if (currentmd5.isEmpty())
-		{
 			currentmd5 = md5("mcepoch1" + getTime());
-		}
-		String resolved = (downloadServers.containsKey(Settings.getSettings().getDownloadServer())) ? "http://" + downloadServers.get(Settings.getSettings().getDownloadServer()) : "http://www.creeperrepo.net";
-		resolved += "/direct/FTB2/" + currentmd5 + "/" + file;
-		HttpURLConnection connection = null;
-		try
-		{
-			connection = (HttpURLConnection) new URL(resolved).openConnection();
-			for (String server : downloadServers.values())
-			{
-				if (connection.getResponseCode() != 200 && !server.equalsIgnoreCase("www.minelord.com"))
-				{
-					resolved = "http://" + server + "/direct/FTB2/" + currentmd5 + "/" + file;
-					connection = (HttpURLConnection) new URL(resolved).openConnection();
-				}
-			}
-		}
-		catch (IOException e)
-		{
-		}
-		connection.disconnect();
-		Logger.logInfo(resolved);
-		return resolved;
+		return "http://launcher.minelord.com/direct/modpack/"+currentmd5+"/"+file;
 	}
 
 	/**

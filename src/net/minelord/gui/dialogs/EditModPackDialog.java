@@ -218,6 +218,7 @@ public class EditModPackDialog extends JDialog {
 			}
 		});
 		modsFolderPane.add(enableMod);
+		setLocationRelativeTo(null);
 	}
 
 	private String[] getEnabled() {
