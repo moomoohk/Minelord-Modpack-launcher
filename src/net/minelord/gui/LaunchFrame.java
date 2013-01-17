@@ -106,8 +106,7 @@ public class LaunchFrame extends JFrame
 	private NewsPane newsPane;
 	public static JPanel panel;
 	private JPanel footer = new JPanel();
-	private JLabel footerLogo = new JLabel(new ImageIcon(this.getClass().getResource("/image/logo_minelord.png")));
-	private JLabel footerCreeper = new JLabel(new ImageIcon(this.getClass().getResource("/image/logo_minelordcom.png")));
+	private JLabel footerBanner = new JLabel(new ImageIcon(this.getClass().getResource("/image/banner_minelord.png")));
 	private JLabel tpInstallLocLbl = new JLabel();
 	private JButton launch = new JButton(), edit = new JButton(), donate = new JButton(), serverbutton = new JButton(), mapInstall = new JButton(), serverMap = new JButton(), tpInstall = new JButton();
 
@@ -149,7 +148,7 @@ public class LaunchFrame extends JFrame
 	public static void main(String[] args)
 	{
 		tracker.setEnabled(true);
-		TrackerUtils.sendPageView("net/ftb/gui/LaunchFrame.java", "Launcher Start v" + version);
+		TrackerUtils.sendPageView("net/minelord/gui/LaunchFrame.java", "Launcher Start v" + version);
 
 		if (new File(Settings.getSettings().getInstallPath(), "FTBLauncherLog.txt").exists())
 		{
@@ -164,7 +163,7 @@ public class LaunchFrame extends JFrame
 		DownloadUtils thread = new DownloadUtils();
 		thread.start();
 
-		Logger.logInfo("MinelordLaunch starting up (version " + version + ")");
+		Logger.logInfo("Minelord Launcher starting up (version " + version + ")");
 		Logger.logInfo("Java version: " + System.getProperty("java.version"));
 		Logger.logInfo("Java vendor: " + System.getProperty("java.vendor"));
 		Logger.logInfo("Java home: " + System.getProperty("java.home"));
@@ -267,7 +266,7 @@ public class LaunchFrame extends JFrame
 	{
 		setFont(new Font("a_FuturaOrto", Font.PLAIN, 12));
 		setResizable(false);
-		setTitle("Feed the Beast Launcher v" + version);
+		setTitle("Minelord Modpack Launcher v" + version);
 		setIconImage(Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/image/logo_minelord.png")));
 
 		panel = new JPanel();
@@ -291,15 +290,14 @@ public class LaunchFrame extends JFrame
 		panel.add(footer);
 		setContentPane(panel);
 
-		// Footer
-		footerLogo.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		footerLogo.setBounds(20, 20, 42, 42);
-		footerLogo.addMouseListener(new MouseListener()
+		footerBanner.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		footerBanner.setBounds(72, 10, 200, 50);
+		footerBanner.addMouseListener(new MouseListener()
 		{
 			@Override
 			public void mouseClicked(MouseEvent event)
 			{
-				OSUtils.browse("http://www.feed-the-beast.com");
+				OSUtils.browse("http://minelord.com");
 			}
 
 			@Override
@@ -315,42 +313,13 @@ public class LaunchFrame extends JFrame
 			@Override
 			public void mouseExited(MouseEvent arg0)
 			{
+				footerBanner.setIcon(new ImageIcon(this.getClass().getResource("/image/banner_minelord.png")));
 			}
 
 			@Override
 			public void mouseEntered(MouseEvent arg0)
 			{
-			}
-		});
-
-		footerCreeper.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		footerCreeper.setBounds(72, 20, 132, 42);
-		footerCreeper.addMouseListener(new MouseListener()
-		{
-			@Override
-			public void mouseClicked(MouseEvent event)
-			{
-				OSUtils.browse("http://www.creeperhost.net/aff.php?aff=293");
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent arg0)
-			{
-			}
-
-			@Override
-			public void mousePressed(MouseEvent arg0)
-			{
-			}
-
-			@Override
-			public void mouseExited(MouseEvent arg0)
-			{
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent arg0)
-			{
+				footerBanner.setIcon(new ImageIcon(this.getClass().getResource("/image/banner_minelordShine.png")));
 			}
 		});
 
@@ -556,8 +525,7 @@ public class LaunchFrame extends JFrame
 
 		footer.add(edit);
 		footer.add(users);
-		footer.add(footerLogo);
-		footer.add(footerCreeper);
+		footer.add(footerBanner);
 		footer.add(launch);
 		footer.add(donate);
 		footer.add(serverbutton);
