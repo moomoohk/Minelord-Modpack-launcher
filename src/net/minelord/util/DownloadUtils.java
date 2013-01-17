@@ -89,35 +89,7 @@ public class DownloadUtils extends Thread
 	 */
 	public static String getStaticMinelordLink(String file)
 	{
-		Logger.logInfo("Requesting file: "+file);
-		String resolved = (downloadServers.containsKey(Settings.getSettings().getDownloadServer())) ? "http://" + downloadServers.get(Settings.getSettings().getDownloadServer()) : "http://www.creeperrepo.net";
-		resolved += "/static/FTB2/" + file;
-		HttpURLConnection connection = null;
-		try
-		{
-			connection = (HttpURLConnection) new URL(resolved).openConnection();
-			if (connection.getResponseCode() != 200)
-			{
-				for (String server : downloadServers.values())
-				{
-					if (connection.getResponseCode() != 200 && !server.equalsIgnoreCase("www.creeperrepo.net"))
-					{
-						resolved = "http://" + server + "/static/FTB2/.xml" + file;
-						connection = (HttpURLConnection) new URL(resolved).openConnection();
-					}
-					else
-						if (connection.getResponseCode() == 200)
-						{
-							break;
-						}
-				}
-			}
-		}
-		catch (IOException e)
-		{
-		}
-		connection.disconnect();
-		return resolved;
+		return "http://launcher.minelord.com/static/modpack/"+file;
 	}
 
 	/**
