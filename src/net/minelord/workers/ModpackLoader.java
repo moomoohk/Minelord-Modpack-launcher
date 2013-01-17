@@ -54,6 +54,7 @@ public class ModpackLoader extends Thread
 		{
 			boolean privatePack = !xmlFile.equalsIgnoreCase("modpacks.xml");
 			File modPackFile = new File(OSUtils.getDynamicStorageLocation(), "ModPacks" + File.separator + xmlFile);
+			Logger.logInfo(modPackFile.getAbsolutePath());
 			try
 			{
 				modPackFile.getParentFile().mkdirs();

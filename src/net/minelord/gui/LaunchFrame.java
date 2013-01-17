@@ -218,7 +218,6 @@ public class LaunchFrame extends JFrame
 					dynamicDir.mkdirs();
 				}
 
-				Logger.logInfo(OSUtils.getDynamicStorageLocation());
 				userManager = new UserManager(new File(OSUtils.getDynamicStorageLocation(), "logindata"));
 				con = new LauncherConsole();
 				if (Settings.getSettings().getConsoleActive())
@@ -239,7 +238,7 @@ public class LaunchFrame extends JFrame
 						Logger.logError("Unhandled exception in " + t.toString(), e);
 					}
 				});
-				System.out.println(this.getClass().getResource("/image/logo_minelord.ico"));
+
 				ModPack.addListener(frame.modPacksPane);
 				ModPack.loadXml(getXmls());
 

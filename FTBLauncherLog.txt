@@ -1,36 +1,14 @@
-[13:19:43] [INFO] OptionsPane.<init>:157: [i18n] Added 0 enUS to options pane
-[13:19:43] [INFO] OptionsPane.<init>:157: [i18n] Added 1 cyGB to options pane
-[13:19:43] [INFO] OptionsPane.<init>:157: [i18n] Added 2 daDK to options pane
-[13:19:43] [INFO] OptionsPane.<init>:157: [i18n] Added 3 deDE to options pane
-[13:19:43] [INFO] OptionsPane.<init>:157: [i18n] Added 4 esES to options pane
-[13:19:43] [INFO] OptionsPane.<init>:157: [i18n] Added 5 frFR to options pane
-[13:19:43] [INFO] OptionsPane.<init>:157: [i18n] Added 6 itIT to options pane
-[13:19:43] [INFO] OptionsPane.<init>:157: [i18n] Added 7 maHU to options pane
-[13:19:43] [INFO] OptionsPane.<init>:157: [i18n] Added 8 nlNL to options pane
-[13:19:43] [INFO] OptionsPane.<init>:157: [i18n] Added 9 ptBR to options pane
-[13:19:43] [INFO] OptionsPane.<init>:157: [i18n] Added 10 ptPT to options pane
-[13:19:43] [INFO] OptionsPane.<init>:157: [i18n] Added 11 ruRU to options pane
-[13:19:43] [INFO] OptionsPane.<init>:157: [i18n] Added 12 svSE to options pane
-[13:19:43] [INFO] I18N.setLocale:157: [i18n] enUS English language file loaded!
-[13:19:43] [INFO] LauncherConsole$OutputOverride.write:96: From Console: file:/C:/Users/Thijn/workspace/Minelord-Pack-Launcher-master/res/image/logo_minelord.ico
-[13:19:43] [INFO] DownloadUtils.getStaticMinelordLink:92: Requesting file: modpacks.xml
-[13:19:43] [INFO] DownloadUtils.getStaticMinelordLink:92: Requesting file: version.xml
-[13:19:44] [INFO] ModpackLoader.run:66: Loading modpack information for modpacks.xml...
-[13:19:44] [INFO] ModpacksPane.onModPackAdded:307: Adding pack 1
-[13:19:44] [INFO] ModpacksPane.onModPackAdded:307: Adding pack 2
-[13:19:44] [INFO] ModpacksPane.onModPackAdded:307: Adding pack 3
-[13:19:44] [INFO] ModpacksPane.onModPackAdded:307: Adding pack 4
-[13:19:44] [INFO] ModpacksPane.onModPackAdded:307: Adding pack 5
-[13:19:44] [INFO] ModpacksPane.onModPackAdded:307: Adding pack 6
-[13:19:44] [INFO] ModpacksPane.onModPackAdded:307: Adding pack 7
-[13:19:44] [INFO] ModpacksPane.onModPackAdded:307: Adding pack 8
-[13:19:44] [INFO] TexturePackLoader.run:40: loading texture pack information...
-[13:19:44] [INFO] DownloadUtils.getStaticMinelordLink:92: Requesting file: texturepack.xml
-[13:19:44] [INFO] MapLoader.run:45: loading map information...
-[13:19:44] [INFO] DownloadUtils.getStaticMinelordLink:92: Requesting file: maps.xml
-[13:19:44] [INFO] MapsPane.onMapAdded:224: Adding map 1
-[13:19:44] [INFO] TexturepackPane.onTexturePackAdded:223: Adding texture pack 1
-[13:19:44] [INFO] MapsPane.onMapAdded:224: Adding map 2
-[13:19:44] [INFO] MapsPane.onMapAdded:224: Adding map 3
-[13:19:44] [INFO] MapsPane.onMapAdded:224: Adding map 4
-[13:19:44] [INFO] TexturepackPane.onTexturePackAdded:223: Adding texture pack 2
+[16:55:16] [INFO] OptionsPane.<init>:157: [i18n] Added 0 enUS to options pane
+[16:55:16] [INFO] I18N.setLocale:157: [i18n] enUS English language file loaded!
+[16:55:17] [INFO] ModpackLoader.run:57: C:\Users\Thijn\AppData\Roaming\minelordlauncher\ModPacks\modpacks.xml
+[16:55:17] [INFO] ModpackLoader.run:67: Loading modpack information for modpacks.xml...
+[16:55:17] [INFO] ModpacksPane.onModPackAdded:307: Adding pack 1
+[16:55:17] [INFO] MapLoader.run:45: loading map information...
+[16:55:17] [INFO] TexturePackLoader.run:40: loading texture pack information...
+[16:55:17] [INFO] TexturePack.<init>:86: Soartex FanverThe Soartex Team1Soartex.zipsmall_soartex.pngbig_soartex.png1.4.6Minelord Mod PackSoartex Fanver texture pack.640
+[16:55:17] [INFO] TexturepackPane.onTexturePackAdded:223: Adding texture pack 1
+[16:55:17] [ERROR] TexturepackPane.updateTexturePacks:262->TexturePackLoader.run:58: null: java.lang.NullPointerException
+net.minelord.gui.panes.TexturepackPane.updateTexturePacks(TexturepackPane.java:262)
+net.minelord.gui.panes.TexturepackPane.onTexturePackAdded(TexturepackPane.java:224)
+net.minelord.data.TexturePack.addTexturePack(TexturePack.java:65)
+net.minelord.workers.TexturePackLoader.run(TexturePackLoader.java:50)

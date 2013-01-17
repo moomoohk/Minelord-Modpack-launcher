@@ -83,6 +83,7 @@ public class TexturePack {
 	}
 
 	public TexturePack(String name, String author, String version, String url, String logo, String image, String mcversion, String compatible, String info, String resolution, int idx) throws NoSuchAlgorithmException, IOException {
+		Logger.logInfo(name + author + version + url + logo + image + mcversion + compatible + info + resolution + idx );
 		index = idx;
 		this.name = name;
 		this.author = author;
