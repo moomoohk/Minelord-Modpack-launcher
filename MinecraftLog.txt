@@ -1,0 +1,29 @@
+Loading jars...
+Loading URL: file:/C:/Users/Thijn/workspace/Minelord-Pack-Launcher-master/MinelordPack/instMods/MinecraftForge.zip
+Loading URL: file:/C:/Users/Thijn/workspace/Minelord-Pack-Launcher-master/MinelordPack/minecraft/bin/minecraft.jar
+Loading URL: file:/C:/Users/Thijn/workspace/Minelord-Pack-Launcher-master/MinelordPack/minecraft/bin/lwjgl.jar
+Loading URL: file:/C:/Users/Thijn/workspace/Minelord-Pack-Launcher-master/MinelordPack/minecraft/bin/lwjgl_util.jar
+Loading URL: file:/C:/Users/Thijn/workspace/Minelord-Pack-Launcher-master/MinelordPack/minecraft/bin/jinput.jar
+Loading natives...
+Natives loaded...
+Loading minecraft class
+mc = class net.minecraft.client.Minecraft
+field amount: 67
+Fixed Minecraft Path: Field was private static java.io.File net.minecraft.client.Minecraft.an
+MCDIR: C:\Users\Thijn\AppData\Roaming\.minecraft
+Launching with applet wrapper...
+27 achievements
+210 recipes
+Setting user: swandir, 3922856453395376326
+LWJGL Version: 2.4.2
+
+Starting up SoundSystem...
+Initializing LWJGL OpenAL
+    (The LWJGL binding of OpenAL.  For more information, see http://www.lwjgl.org)
+OpenAL initialized.
+
+Stopping!
+
+SoundSystem shutting down...
+    Author: Paul Lamb, www.paulscode.com
+

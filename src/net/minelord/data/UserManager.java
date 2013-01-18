@@ -95,28 +95,6 @@ public class UserManager
 		{
 			Logger.logError("Failed to decode logindata", e);
 		}
-
-		// TODO: Remove this in a while once people are unlikely to have old
-		// format saved logindata
-		if (_users.isEmpty())
-		{
-			try
-			{
-				BufferedReader read = new BufferedReader(new FileReader(_file));
-				String str;
-				while ((str = read.readLine()) != null)
-				{
-					Logger.logInfo("First: "+str);
-					str = CryptoUtils.decrypt(str, OSUtils.getMacAddress());
-					_users.add(new User(str));
-				}
-				read.close();
-			}
-			catch (Exception ex)
-			{
-				Logger.logError(ex.getMessage(), ex);
-			}
-		}
 	}
 
 	public static void addUser(String username, String password, String name)

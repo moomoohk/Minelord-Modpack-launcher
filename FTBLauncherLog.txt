@@ -1,15 +1,18 @@
-[19:22:57] [INFO] OptionsPane.<init>:157: [i18n] Added 0 enUS to options pane
-[19:22:57] [INFO] I18N.setLocale:157: [i18n] enUS English language file loaded!
-[19:22:57] [INFO] ModpackLoader.run:57: C:\Users\dell\AppData\Roaming\minelordlauncher\ModPacks\modpacks.xml
-[19:22:58] [INFO] ModpackLoader.run:67: Loading modpack information for modpacks.xml...
-[19:22:58] [INFO] ModpacksPane.onModPackAdded:279: Adding pack 1
-[19:22:58] [INFO] MapLoader.run:45: loading map information...
-[19:22:58] [INFO] TexturePackLoader.run:40: loading texture pack information...
-[19:22:58] [INFO] TexturePack.<init>:86: Soartex FanverThe Soartex Team1Soartex.zipsmall_soartex.pngbig_soartex.png1.4.6Minelord Mod PackSoartex Fanver texture pack.640
-[19:22:58] [INFO] TexturepackPane.onTexturePackAdded:223: Adding texture pack 1
-[19:22:58] [INFO] TexturepackPane.updateTexturePacks:260: [Ljava.lang.String;@115d0f69
-[19:22:58] [ERROR] TexturepackPane.updateTexturePacks:263->TexturePackLoader.run:58: null: java.lang.NullPointerException
-net.minelord.gui.panes.TexturepackPane.updateTexturePacks(TexturepackPane.java:263)
-net.minelord.gui.panes.TexturepackPane.onTexturePackAdded(TexturepackPane.java:224)
-net.minelord.data.TexturePack.addTexturePack(TexturePack.java:65)
-net.minelord.workers.TexturePackLoader.run(TexturePackLoader.java:50)
+[21:09:01] [INFO] OptionsPane.<init>:157: [i18n] Added 0 enUS to options pane
+[21:09:01] [INFO] I18N.setLocale:157: [i18n] enUS English language file loaded!
+[21:09:02] [INFO] ModpackLoader.run:57: C:\Users\Thijn\AppData\Roaming\minelordlauncher\ModPacks\modpacks.xml
+[21:09:02] [INFO] ModpackLoader.run:67: Loading modpack information for modpacks.xml...
+[21:09:02] [INFO] ModpacksPane.onModPackAdded:279: Adding pack 1
+[21:09:02] [INFO] MapLoader.run:45: loading map information...
+[21:09:02] [INFO] TexturePackLoader.run:40: loading texture pack information...
+[21:09:02] [INFO] TexturepackPane.onTexturePackAdded:223: Adding texture pack 1
+[21:09:04] [INFO] LaunchFrame.doLogin:603: Logging in...
+[21:09:05] [INFO] LaunchFrame$12.done:682: Login complete.
+[21:09:05] [INFO] LaunchFrame.initializeMods:1054: MinelordPack
+[21:09:05] [INFO] ModManager.upToDate:216: Modpack is out of date: 0
+[21:09:12] [INFO] LaunchFrame.installMods:869: dirs mk'd
+[21:09:12] [INFO] MinecraftVersionDetector.shouldUpdate:105: Current: 1.4.6
+[21:09:12] [INFO] MinecraftVersionDetector.shouldUpdate:106: Required: 1.4.6
+[21:09:12] [INFO] MinecraftLauncher.launchMinecraft:63: Not a directory.
+[21:09:12] [INFO] MinecraftLauncher.setMemory:114: Setting MinMemory to 256
+[21:09:12] [INFO] MinecraftLauncher.setMemory:116: Setting MaxMemory to 1024

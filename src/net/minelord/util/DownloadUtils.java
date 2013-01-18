@@ -143,8 +143,8 @@ public class DownloadUtils extends Thread
 	{
 		String content = null;
 		Scanner scanner = null;
-		String resolved = (downloadServers.containsKey(Settings.getSettings().getDownloadServer())) ? "http://" + downloadServers.get(Settings.getSettings().getDownloadServer()) : "http://www.creeperrepo.net";
-		resolved += "/getdate";
+		String resolved = "http://launcher.minelord.com";
+		resolved += "/getdate.php";
 		HttpURLConnection connection = null;
 		try
 		{
@@ -153,9 +153,9 @@ public class DownloadUtils extends Thread
 			{
 				for (String server : downloadServers.values())
 				{
-					if (connection.getResponseCode() != 200 && !server.equalsIgnoreCase("www.creeperrepo.net"))
+					if (connection.getResponseCode() != 200 && !server.equalsIgnoreCase("launcher.minelord.com"))
 					{
-						resolved = "http://" + server + "/getdate";
+						resolved = "http://" + server + "/getdate.php";
 						connection = (HttpURLConnection) new URL(resolved).openConnection();
 					}
 					else

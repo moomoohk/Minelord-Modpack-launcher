@@ -24,7 +24,7 @@ public class TrackerUtils {
 
 	public static void sendPageView(String pageUrl, String pageTitle) {
 		if(!Settings.getSettings().getSnooper()) {
-			LaunchFrame.tracker.trackPageViewFromReferrer(pageUrl, pageTitle, "Feed The Beast", "http://www.feed-the-beast.com", "/");
+			LaunchFrame.tracker.trackPageViewFromReferrer(pageUrl, pageTitle, "Minelord Launcher", "http://launcher.minelord.com", "/");
 		}
 	}
 }

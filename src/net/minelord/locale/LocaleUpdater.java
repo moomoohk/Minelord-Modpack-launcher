@@ -64,7 +64,6 @@ public class LocaleUpdater extends Thread {
 	}
 
 	public void run() {
-		Logger.logInfo("[i18n] Checking for updates ...");
 		File dir = new File(root);
 		File tmp = new File(dir, "locale");
 
@@ -73,6 +72,8 @@ public class LocaleUpdater extends Thread {
 			tmp.mkdirs();
 		}
 		cleanUpFiles();
+		/*
+		 * This removes the Locale Updater, Isn't really needed IMO. English is nice enough..
 		try {
 			URLConnection connection = new URL(DownloadUtils.getStaticMinelordLink("locales")).openConnection();
 			Scanner scanner = new Scanner(connection.getInputStream());
@@ -103,7 +104,9 @@ public class LocaleUpdater extends Thread {
 		} else {
 			updateFiles();
 		}
+		
 		I18N.addFiles();
+		 */
 	}
 
 	private void cleanUpFiles() {

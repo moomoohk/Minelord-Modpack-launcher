@@ -25,8 +25,6 @@ public class CryptoUtils
 {
 	public static String decrypt(String str, byte[] key)
 	{
-		Logger.logInfo(str);
-		Logger.logInfo(""+key.length);
 		BigInteger in = new BigInteger(str, 16).xor(new BigInteger(1, key));
 		try
 		{
