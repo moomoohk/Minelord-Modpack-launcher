@@ -59,6 +59,7 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 
 	private static JPanel packs;
 	private JLabel logo = new JLabel(new ImageIcon(this.getClass().getResource("/image/logo_modpack.png")));
+	private JLabel loading=new JLabel(new ImageIcon(this.getClass().getResource("/image/gif_loading.gif")));
 	public static ArrayList<JPanel> packPanels;
 	private static JScrollPane packsScroll;
 
@@ -71,7 +72,6 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 	private static HashMap<Integer, ModPack> currentPacks = new HashMap<Integer, ModPack>();
 	private static JEditorPane packInfo;
 
-	// private JLabel loadingImage;
 	public static String origin = "All", mcVersion = "All", avaliability = "All";
 	public static boolean loaded = false;
 
@@ -84,13 +84,6 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		setLayout(null);
 
 		packPanels = new ArrayList<JPanel>();
-
-		// TODO: Set loading animation while we wait
-		// try {
-		// loadingImage = new JLabel(new ImageIcon(new
-		// URL("http://cdn.nirmaltv.com/images/generatorphp-thumb.gif")));
-		// } catch (MalformedURLException e1) { e1.printStackTrace(); }
-		// loadingImage.setLocation(58, 36);
 
 		packs = new JPanel();
 		packs.setLayout(null);
@@ -115,7 +108,7 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		typeLbl.setBounds(115, 5, 175, 25);
 		typeLbl.setHorizontalAlignment(SwingConstants.CENTER);
 		add(typeLbl);
-
+		
 		JTextArea filler = new JTextArea(I18N.getLocaleString("MODS_WAIT_WHILE_LOADING"));
 		filler.setBorder(null);
 		filler.setEditable(false);
@@ -124,13 +117,12 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		filler.setBackground(new Color(255, 255, 255, 0));
 		// p.add(loadingImage);
 		p.add(filler);
-		packs.add(p);
-
-		Logger.logInfo(this.getClass().getResource("/image/logo_modpack.png").toString());
+		//packs.add(p);
+		packs.add(loading);
+		
+		
 		logo.setBounds(-10, -50, 400, 400);
-		
-		
-		
+		loading.setBounds(520, 100 , 64, 64);
 		
 		packsScroll = new JScrollPane();
 		packsScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -140,7 +132,8 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		// packsScroll.setViewportView(packs);
 		packsScroll.getVerticalScrollBar().setUnitIncrement(19);
 		//add(packsScroll);
-
+		
+		
 		packInfo = new JEditorPane();
 		packInfo.setEditable(false);
 		packInfo.setContentType("text/html");

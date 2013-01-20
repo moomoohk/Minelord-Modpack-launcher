@@ -1,12 +1,15 @@
-[15:34:02] [INFO] ModpacksPane.<init>:129: file:/Users/MeshulamSilk/Documents/workspace/Minelord-Modpack-launcher/res/image/logo_modpack.png
-[15:34:02] [INFO] HttpURLConnection.getInputStream:1434->LocaleUpdater.run:85: [i18n] Could not retrieve version info, skipping update.: java.io.FileNotFoundException: http://launcher.minelord.com/static/modpack/locales
+[15:50:02] [INFO] HttpURLConnection.getInputStream:1434->LocaleUpdater.run:85: [i18n] Could not retrieve version info, skipping update.: java.io.FileNotFoundException: http://launcher.minelord.com/static/modpack/locales
 sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1434)
 net.minelord.locale.LocaleUpdater.run(LocaleUpdater.java:78)
-[15:34:02] [INFO] OptionsPane.<init>:157: [i18n] Added 0 enUS to options pane
-[15:34:02] [INFO] I18N.setLocale:157: [i18n] enUS English language file loaded!
-[15:34:02] [INFO] ModpackLoader.run:57: /Users/MeshulamSilk/Library/Application Support/minelordlauncher/ModPacks/modpacks.xml
-[15:34:03] [INFO] ModpackLoader.run:67: Loading modpack information for modpacks.xml...
-[15:34:03] [INFO] ModpacksPane.onModPackAdded:291: Adding pack 1
-[15:34:03] [INFO] MapLoader.run:45: loading map information...
-[15:34:03] [INFO] TexturePackLoader.run:40: loading texture pack information...
-[15:34:03] [INFO] TexturepackPane.onTexturePackAdded:223: Adding texture pack 1
+[15:50:02] [INFO] OptionsPane.<init>:157: [i18n] Added 0 enUS to options pane
+[15:50:02] [INFO] I18N.setLocale:157: [i18n] enUS English language file loaded!
+[15:50:03] [INFO] ModpackLoader.run:57: /Users/MeshulamSilk/Library/Application Support/minelordlauncher/ModPacks/modpacks.xml
+[15:50:04] [INFO] ModpackLoader.run:67: Loading modpack information for modpacks.xml...
+[15:50:04] [ERROR] ModpacksPane.addPack:283->ModpackLoader.run:120: null: java.lang.NullPointerException
+net.minelord.gui.panes.ModpacksPane.addPack(ModpacksPane.java:283)
+net.minelord.gui.panes.ModpacksPane.onModPackAdded(ModpacksPane.java:293)
+net.minelord.data.ModPack.addPack(ModPack.java:95)
+net.minelord.workers.ModpackLoader.run(ModpackLoader.java:112)
+[15:50:04] [INFO] MapLoader.run:45: loading map information...
+[15:50:04] [INFO] TexturePackLoader.run:40: loading texture pack information...
+[15:50:04] [INFO] TexturepackPane.onTexturePackAdded:223: Adding texture pack 1
