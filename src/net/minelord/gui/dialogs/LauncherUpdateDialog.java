@@ -30,7 +30,8 @@ import net.minelord.gui.LaunchFrame;
 import net.minelord.updater.UpdateChecker;
 import net.minelord.util.OSUtils;
 
-public class LauncherUpdateDialog extends JDialog {
+public class LauncherUpdateDialog extends JDialog
+{
 	private static final long serialVersionUID = 1L;
 
 	private JPanel panel = new JPanel();
@@ -40,7 +41,8 @@ public class LauncherUpdateDialog extends JDialog {
 	private JButton yesButton = new JButton("Yes");
 	private JButton noButton = new JButton("No");
 
-	public LauncherUpdateDialog(final UpdateChecker updateChecker) {
+	public LauncherUpdateDialog(final UpdateChecker updateChecker)
+	{
 		super(LaunchFrame.getInstance(), true);
 
 		setIconImage(Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/image/logo_ftb.png")));
@@ -61,9 +63,11 @@ public class LauncherUpdateDialog extends JDialog {
 		panel.add(textTwo);
 
 		changelog.setBounds(65, 55, 170, 25);
-		changelog.addActionListener(new ActionListener() {
+		changelog.addActionListener(new ActionListener()
+		{
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent arg0)
+			{
 				// TODO: Call new frame containing html page?
 				OSUtils.browse("http://launcher.feed-the-beast.com/changelog.html?" + LaunchFrame.buildNumber);
 			}
@@ -71,9 +75,11 @@ public class LauncherUpdateDialog extends JDialog {
 		panel.add(changelog);
 
 		yesButton.setBounds(65, 90, 80, 25);
-		yesButton.addActionListener(new ActionListener() {
+		yesButton.addActionListener(new ActionListener()
+		{
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent arg0)
+			{
 				setVisible(false);
 				updateChecker.update();
 			}
@@ -81,9 +87,11 @@ public class LauncherUpdateDialog extends JDialog {
 		panel.add(yesButton);
 
 		noButton.setBounds(155, 90, 80, 25);
-		noButton.addActionListener(new ActionListener() {
+		noButton.addActionListener(new ActionListener()
+		{
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent arg0)
+			{
 				setVisible(false);
 			}
 		});

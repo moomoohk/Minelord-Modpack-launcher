@@ -23,11 +23,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -47,8 +50,6 @@ import net.minelord.data.ModPack;
 import net.minelord.data.Settings;
 import net.minelord.data.events.ModPackListener;
 import net.minelord.gui.LaunchFrame;
-import net.minelord.gui.dialogs.EditModPackDialog;
-import net.minelord.gui.dialogs.ModPackFilterDialog;
 import net.minelord.gui.dialogs.PrivatePackDialog;
 import net.minelord.gui.dialogs.SearchDialog;
 import net.minelord.locale.I18N;
@@ -58,10 +59,12 @@ import net.minelord.util.DownloadUtils;
 import net.minelord.util.OSUtils;
 import net.minelord.util.TrackerUtils;
 
-public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListener {
+public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListener
+{
 	private static final long serialVersionUID = 1L;
 
 	private static JPanel packs;
+	private JLabel logo = new JLabel(new ImageIcon(this.getClass().getResource("/image/logo_modpack.png")));
 	public static ArrayList<JPanel> packPanels;
 	private static JScrollPane packsScroll;
 
@@ -77,14 +80,14 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 	private final ModpacksPane instance = this;
 	private static JEditorPane packInfo;
 
-
-	//	private JLabel loadingImage;
+	// private JLabel loadingImage;
 	public static String origin = "All", mcVersion = "All", avaliability = "All";
 	public static boolean loaded = false;
 
-	private static JScrollPane infoScroll;
+	private static JScrollPane modPackInfoScroller;
 
-	public ModpacksPane () {
+	public ModpacksPane()
+	{
 		super();
 		setBorder(new EmptyBorder(5, 5, 5, 5));
 		setLayout(null);
@@ -92,10 +95,11 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		packPanels = new ArrayList<JPanel>();
 
 		// TODO: Set loading animation while we wait
-		//		try {
-		//			loadingImage = new JLabel(new ImageIcon(new URL("http://cdn.nirmaltv.com/images/generatorphp-thumb.gif")));
-		//		} catch (MalformedURLException e1) { e1.printStackTrace(); }
-		//		loadingImage.setLocation(58, 36);
+		// try {
+		// loadingImage = new JLabel(new ImageIcon(new
+		// URL("http://cdn.nirmaltv.com/images/generatorphp-thumb.gif")));
+		// } catch (MalformedURLException e1) { e1.printStackTrace(); }
+		// loadingImage.setLocation(58, 36);
 
 		packs = new JPanel();
 		packs.setLayout(null);
@@ -105,7 +109,6 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		final JPanel p = new JPanel();
 		p.setBounds(0, 0, 420, 55);
 		p.setLayout(null);
-
 
 		String filterTextColor = LauncherStyle.getColorAsString(LauncherStyle.getCurrentStyle().filterTextColor);
 		String filterInnerTextColor = LauncherStyle.getColorAsString(LauncherStyle.getCurrentStyle().filterInnerTextColor);
@@ -128,74 +131,100 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		filler.setForeground(Color.white);
 		filler.setBounds(58, 6, 378, 42);
 		filler.setBackground(new Color(255, 255, 255, 0));
-		//		p.add(loadingImage);
+		// p.add(loadingImage);
 		p.add(filler);
 		packs.add(p);
 
+		Logger.logInfo(this.getClass().getResource("/image/logo_modpack.png").toString());
+		logo.setBounds(70, 0, 400, 400);
+		
+		
+		
+		
 		packsScroll = new JScrollPane();
-		packsScroll.setBounds(-3, 30, 420, 283);
 		packsScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		packsScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		packsScroll.setWheelScrollingEnabled(true);
 		packsScroll.setOpaque(false);
-		//packsScroll.setViewportView(packs);
+		// packsScroll.setViewportView(packs);
 		packsScroll.getVerticalScrollBar().setUnitIncrement(19);
 		//add(packsScroll);
 
 		packInfo = new JEditorPane();
 		packInfo.setEditable(false);
 		packInfo.setContentType("text/html");
-		packInfo.addHyperlinkListener(new HyperlinkListener() {
+		packInfo.addHyperlinkListener(new HyperlinkListener()
+		{
 			@Override
-			public void hyperlinkUpdate(HyperlinkEvent event) {
-				if(event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+			public void hyperlinkUpdate(HyperlinkEvent event)
+			{
+				if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED)
+				{
 					OSUtils.browse(event.getURL().toString());
 				}
 			}
 		});
-		// TODO: Fix darker background for text area? Or is it better blending in?
+		// TODO: Fix darker background for text area? Or is it better blending
+		// in?
 		packInfo.setBackground(UIManager.getColor("control").darker().darker());
 		add(packInfo);
 
-		infoScroll = new JScrollPane();
-		infoScroll.setBounds(410, 25, 430, 290);
-		infoScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		infoScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		infoScroll.setWheelScrollingEnabled(true);
-		infoScroll.setViewportView(packInfo);
-		infoScroll.setOpaque(false);
-		add(infoScroll);
+		modPackInfoScroller = new JScrollPane();
+		modPackInfoScroller.setBounds(500, 25, 430, 290);
+		modPackInfoScroller.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		modPackInfoScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		modPackInfoScroller.setWheelScrollingEnabled(true);
+		modPackInfoScroller.setViewportView(packInfo);
+		modPackInfoScroller.setOpaque(false);
+
+		add(modPackInfoScroller);
+		add(logo);
 
 		server = new JButton("Download Server");
 		server.setBounds(420, 5, 130, 25);
 
-		server.addActionListener(new ActionListener() {
+		server.addActionListener(new ActionListener()
+		{
 			@Override
-			public void actionPerformed(ActionEvent event) {
-				if(!ModPack.getSelectedPack().getServerUrl().isEmpty()) {
-					if(LaunchFrame.modPacksPane.packPanels.size() > 0 && getSelectedModIndex() >= 0) {
-						try {
-							if(!ModPack.getSelectedPack().getServerUrl().equals("") && ModPack.getSelectedPack().getServerUrl() != null) {
-								String version = (Settings.getSettings().getPackVer().equalsIgnoreCase("recommended version") || Settings.getSettings().getPackVer().equalsIgnoreCase("newest version")) ? ModPack.getSelectedPack().getVersion().replace(".", "_") : Settings.getSettings().getPackVer().replace(".", "_");
-								if(ModPack.getSelectedPack().isPrivatePack()) {
+			public void actionPerformed(ActionEvent event)
+			{
+				if (!ModPack.getSelectedPack().getServerUrl().isEmpty())
+				{
+					if (LaunchFrame.modPacksPane.packPanels.size() > 0 && getSelectedModIndex() >= 0)
+					{
+						try
+						{
+							if (!ModPack.getSelectedPack().getServerUrl().equals("") && ModPack.getSelectedPack().getServerUrl() != null)
+							{
+								String version = (Settings.getSettings().getPackVer().equalsIgnoreCase("recommended version") || Settings.getSettings().getPackVer().equalsIgnoreCase("newest version")) ? ModPack.getSelectedPack().getVersion().replace(".", "_") : Settings.getSettings().getPackVer()
+										.replace(".", "_");
+								if (ModPack.getSelectedPack().isPrivatePack())
+								{
 									OSUtils.browse(DownloadUtils.getMinelordLink("privatepacks%5E" + ModPack.getSelectedPack().getDir() + "%5E" + version + "%5E" + ModPack.getSelectedPack().getServerUrl()));
-								} else {
+								}
+								else
+								{
 									OSUtils.browse(DownloadUtils.getMinelordLink("modpacks%5E" + ModPack.getSelectedPack().getDir() + "%5E" + version + "%5E" + ModPack.getSelectedPack().getServerUrl()));
 								}
 								TrackerUtils.sendPageView(ModPack.getSelectedPack().getName() + " Server Download", ModPack.getSelectedPack().getName());
 							}
-						} catch (NoSuchAlgorithmException e) { }
+						}
+						catch (NoSuchAlgorithmException e)
+						{
+						}
 					}
 				}
 			}
 		});
 		add(server);
 
-		version = new JComboBox(new String[]{});
+		version = new JComboBox(new String[] {});
 		version.setBounds(560, 5, 130, 25);
-		version.addActionListener(new ActionListener() {
+		version.addActionListener(new ActionListener()
+		{
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent arg0)
+			{
 				Settings.getSettings().setPackVer((String.valueOf(version.getSelectedItem()).equalsIgnoreCase("recommended") ? "Recommended Version" : String.valueOf(version.getSelectedItem())));
 				Settings.getSettings().save();
 			}
@@ -205,9 +234,11 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 
 		privatePack = new JButton("Private Packs");
 		privatePack.setBounds(700, 5, 120, 25);
-		privatePack.addActionListener(new ActionListener() {
+		privatePack.addActionListener(new ActionListener()
+		{
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e)
+			{
 				PrivatePackDialog ap = new PrivatePackDialog();
 				ap.setVisible(true);
 			}
@@ -216,13 +247,18 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		add(privatePack);
 	}
 
-	@Override public void onVisible() { }
+	@Override
+	public void onVisible()
+	{
+	}
 
 	/*
 	 * GUI Code to add a modpack to the selection
 	 */
-	public static void addPack(ModPack pack) {
-		if (!modPacksAdded) {
+	public static void addPack(ModPack pack)
+	{
+		if (!modPacksAdded)
+		{
 			modPacksAdded = true;
 			packs.removeAll();
 		}
@@ -240,18 +276,36 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		filler.setForeground(Color.white);
 		filler.setBounds(58, 6, 378, 42);
 		filler.setBackground(new Color(255, 255, 255, 0));
-		MouseListener lin = new MouseListener() {
-			@Override public void mouseClicked(MouseEvent e) {
+		MouseListener lin = new MouseListener()
+		{
+			@Override
+			public void mouseClicked(MouseEvent e)
+			{
 				selectedPack = packIndex;
 				updatePacks();
 			}
-			@Override public void mouseReleased(MouseEvent e) { }
-			@Override public void mousePressed(MouseEvent e) { 
+
+			@Override
+			public void mouseReleased(MouseEvent e)
+			{
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e)
+			{
 				selectedPack = packIndex;
 				updatePacks();
 			}
-			@Override public void mouseExited(MouseEvent e) { }
-			@Override public void mouseEntered(MouseEvent e) { }
+
+			@Override
+			public void mouseExited(MouseEvent e)
+			{
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e)
+			{
+			}
 		};
 		p.addMouseListener(lin);
 		filler.addMouseListener(lin);
@@ -260,27 +314,33 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		p.add(logo);
 		packPanels.add(p);
 		packs.add(p);
-		if(currentPacks.isEmpty()) {
+		if (currentPacks.isEmpty())
+		{
 			packs.setMinimumSize(new Dimension(420, (ModPack.getPackArray().size() * 55)));
 			packs.setPreferredSize(new Dimension(420, (ModPack.getPackArray().size() * 55)));
-		} else {
+		}
+		else
+		{
 			packs.setMinimumSize(new Dimension(420, (currentPacks.size() * 55)));
 			packs.setPreferredSize(new Dimension(420, (currentPacks.size() * 55)));
 		}
 		packsScroll.revalidate();
-		if(pack.getDir().equalsIgnoreCase(Settings.getSettings().getLastPack())) {
+		if (pack.getDir().equalsIgnoreCase(Settings.getSettings().getLastPack()))
+		{
 			selectedPack = packIndex;
 		}
 	}
 
 	@Override
-	public void onModPackAdded(ModPack pack) {
+	public void onModPackAdded(ModPack pack)
+	{
 		addPack(pack);
 		Logger.logInfo("Adding pack " + packPanels.size());
 		updatePacks();
 	}
 
-	public static void sortPacks() {
+	public static void sortPacks()
+	{
 		packPanels.clear();
 		packs.removeAll();
 		currentPacks.clear();
@@ -288,8 +348,10 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		selectedPack = 0;
 		packInfo.setText("");
 		packs.repaint();
-		for(ModPack pack : ModPack.getPackArray()) {
-			if(originCheck(pack) && mcVersionCheck(pack) && avaliabilityCheck(pack) && textSearch(pack)) {
+		for (ModPack pack : ModPack.getPackArray())
+		{
+			if (originCheck(pack) && mcVersionCheck(pack) && avaliabilityCheck(pack) && textSearch(pack))
+			{
 				currentPacks.put(counter, pack);
 				addPack(pack);
 				counter++;
@@ -298,15 +360,21 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		updatePacks();
 	}
 
-	private static void updatePacks() {
-		for(int i = 0; i < packPanels.size(); i++) {
-			if(selectedPack == i) {
+	private static void updatePacks()
+	{
+		for (int i = 0; i < packPanels.size(); i++)
+		{
+			if (selectedPack == i)
+			{
 				ModPack pack = ModPack.getPack(getIndex());
-				if(pack != null) {
+				if (pack != null)
+				{
 					String mods = "";
-					if(pack.getMods() != null) {
+					if (pack.getMods() != null)
+					{
 						mods += "<p>This pack contains the following mods by default:</p><ul>";
-						for (String name : ModPack.getPack(getIndex()).getMods()) {
+						for (String name : ModPack.getPack(getIndex()).getMods())
+						{
 							mods += "<li>" + name + "</li>";
 						}
 						mods += "</ul>";
@@ -314,36 +382,46 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 					packPanels.get(i).setBackground(UIManager.getColor("control").darker().darker());
 					packPanels.get(i).setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 					File tempDir = new File(OSUtils.getDynamicStorageLocation(), "ModPacks" + File.separator + ModPack.getPack(getIndex()).getDir());
-					packInfo.setText("<html><img src='file:///" + tempDir.getPath() + File.separator + ModPack.getPack(getIndex()).getImageName() +"' width=400 height=200></img> <br>" + ModPack.getPack(getIndex()).getInfo() + mods);
+
+					packInfo.setText("<html><img src='file:///" + tempDir.getPath() + File.separator + ModPack.getPack(getIndex()).getImageName() + "' width=400 height=100></img> <br>" + ModPack.getPack(getIndex()).getInfo() + mods);
 					packInfo.setCaretPosition(0);
 
-					if(ModPack.getSelectedPack().getServerUrl().equals("") || ModPack.getSelectedPack().getServerUrl() == null) {
+					if (ModPack.getSelectedPack().getServerUrl().equals("") || ModPack.getSelectedPack().getServerUrl() == null)
+					{
 						server.setEnabled(false);
-					} else {
+					}
+					else
+					{
 						server.setEnabled(true);
 					}
 					String tempVer = Settings.getSettings().getPackVer();
 					version.removeAllItems();
 					version.addItem("Recommended");
-					if(pack.getOldVersions() != null) {
-						for(String s : pack.getOldVersions()) {
+					if (pack.getOldVersions() != null)
+					{
+						for (String s : pack.getOldVersions())
+						{
 							version.addItem(s);
 						}
 						version.setSelectedItem(tempVer);
 					}
 				}
-			} else {
+			}
+			else
+			{
 				packPanels.get(i).setBackground(UIManager.getColor("control"));
 				packPanels.get(i).setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 			}
 		}
 	}
 
-	public static int getSelectedModIndex() {
+	public static int getSelectedModIndex()
+	{
 		return modPacksAdded ? getIndex() : -1;
 	}
 
-	public static void updateFilter() {
+	public static void updateFilter()
+	{
 		String filterTextColor = LauncherStyle.getColorAsString(LauncherStyle.getCurrentStyle().filterTextColor);
 		String filterInnerTextColor = LauncherStyle.getColorAsString(LauncherStyle.getCurrentStyle().filterInnerTextColor);
 		String typeLblText = "<html><body>";
@@ -358,31 +436,40 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		LaunchFrame.getInstance().updateFooter();
 	}
 
-	private static int getIndex() {
+	private static int getIndex()
+	{
 		return (!currentPacks.isEmpty()) ? currentPacks.get(selectedPack).getIndex() : selectedPack;
 	}
 
-	public void updateLocale() {
-		if(I18N.currentLocale == Locale.deDE) {
+	public void updateLocale()
+	{
+		if (I18N.currentLocale == Locale.deDE)
+		{
 			typeLbl.setBounds(115, 5, 165, 25);
-		} else {
+		}
+		else
+		{
 			typeLbl.setBounds(115, 5, 175, 25);
 		}
 	}
 
-	private static boolean avaliabilityCheck(ModPack pack) {
+	private static boolean avaliabilityCheck(ModPack pack)
+	{
 		return (avaliability.equalsIgnoreCase("all")) || (avaliability.equalsIgnoreCase("public") && !pack.isPrivatePack()) || (avaliability.equalsIgnoreCase("private") && pack.isPrivatePack());
 	}
 
-	private static boolean mcVersionCheck(ModPack pack) {
+	private static boolean mcVersionCheck(ModPack pack)
+	{
 		return (mcVersion.equalsIgnoreCase("all")) || (mcVersion.equalsIgnoreCase(pack.getMcVersion()));
 	}
 
-	private static boolean originCheck(ModPack pack) {
+	private static boolean originCheck(ModPack pack)
+	{
 		return (origin.equalsIgnoreCase("all")) || (origin.equalsIgnoreCase("ftb") && pack.getAuthor().equalsIgnoreCase("the ftb team")) || (origin.equalsIgnoreCase("3rd party") && !pack.getAuthor().equalsIgnoreCase("the ftb team"));
 	}
 
-	private static boolean textSearch(ModPack pack) {
+	private static boolean textSearch(ModPack pack)
+	{
 		String searchString = SearchDialog.lastPackSearch.toLowerCase();
 		return ((searchString.isEmpty()) || pack.getName().toLowerCase().contains(searchString) || pack.getAuthor().toLowerCase().contains(searchString));
 	}

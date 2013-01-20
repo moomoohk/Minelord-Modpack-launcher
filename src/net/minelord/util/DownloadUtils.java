@@ -56,7 +56,7 @@ public class DownloadUtils extends Thread
 	{
 		if (currentmd5.isEmpty())
 			currentmd5 = md5("mcepoch1" + getTime());
-		return "http://launcher.minelord.com/direct/modpack/"+currentmd5+"/"+file;
+		return "http://launcher.minelord.com/direct/modpack/" + currentmd5 + "/" + file;
 	}
 
 	/**
@@ -67,7 +67,7 @@ public class DownloadUtils extends Thread
 	 */
 	public static String getStaticMinelordLink(String file)
 	{
-		return "http://launcher.minelord.com/static/modpack/"+file;
+		return "http://launcher.minelord.com/static/modpack/" + file;
 	}
 
 	/**
@@ -101,7 +101,7 @@ public class DownloadUtils extends Thread
 			{
 				currentmd5 = md5("mcepoch1" + getTime());
 			}
-			BufferedReader reader = new BufferedReader(new InputStreamReader(new URL("http://www.creeperrepo.net/direct/FTB2/" + currentmd5 + "/" + file).openStream()));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(new URL("http://www.minelord.net/direct/modpack/" + currentmd5 + "/" + file).openStream()));
 			return !reader.readLine().toLowerCase().contains("not found");
 		}
 		catch (Exception e)
@@ -143,12 +143,17 @@ public class DownloadUtils extends Thread
 	{
 		String content = null;
 		Scanner scanner = null;
+<<<<<<< HEAD
 		String resolved = "http://launcher.minelord.com";
 		resolved += "/getdate.php";
+=======
+		String resolved = "http://www.minelord.net/getDate";
+>>>>>>> Starting work on the modpack pane
 		HttpURLConnection connection = null;
 		try
 		{
 			connection = (HttpURLConnection) new URL(resolved).openConnection();
+<<<<<<< HEAD
 			if (connection.getResponseCode() != 200)
 			{
 				for (String server : downloadServers.values())
@@ -165,6 +170,8 @@ public class DownloadUtils extends Thread
 						}
 				}
 			}
+=======
+>>>>>>> Starting work on the modpack pane
 			scanner = new Scanner(connection.getInputStream());
 			scanner.useDelimiter("\\Z");
 			content = scanner.next();
