@@ -6,3 +6,5 @@ ftblaunch.cfg
 target/
 *.iml
 .idea/
+FTBLauncherLog.txt
+MinecraftLog.txt
