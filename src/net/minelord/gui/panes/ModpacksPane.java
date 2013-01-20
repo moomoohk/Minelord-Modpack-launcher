@@ -23,14 +23,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -136,7 +133,7 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		packs.add(p);
 
 		Logger.logInfo(this.getClass().getResource("/image/logo_modpack.png").toString());
-		logo.setBounds(70, 0, 400, 400);
+		logo.setBounds(-10, -50, 400, 400);
 		
 		
 		
@@ -216,10 +213,10 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 				}
 			}
 		});
-		add(server);
+		//add(server);
 
 		version = new JComboBox(new String[] {});
-		version.setBounds(560, 5, 130, 25);
+		version.setBounds(200, 5, 130, 25);
 		version.addActionListener(new ActionListener()
 		{
 			@Override
@@ -230,7 +227,7 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 			}
 		});
 		version.setToolTipText("Modpack Versions");
-		add(version);
+		//add(version);
 
 		privatePack = new JButton("Private Packs");
 		privatePack.setBounds(700, 5, 120, 25);
@@ -244,7 +241,7 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 			}
 		});
 
-		add(privatePack);
+		//add(privatePack);
 	}
 
 	@Override
