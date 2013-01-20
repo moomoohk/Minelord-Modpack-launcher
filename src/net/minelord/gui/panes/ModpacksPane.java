@@ -63,8 +63,6 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 	public static ArrayList<JPanel> packPanels;
 	private static JScrollPane packsScroll;
 
-	private static JLabel typeLbl;
-
 	private JButton privatePack;
 	private static JComboBox version;
 	private static int selectedPack = 0;
@@ -93,21 +91,6 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		final JPanel p = new JPanel();
 		p.setBounds(0, 0, 420, 55);
 		p.setLayout(null);
-
-		String filterTextColor = LauncherStyle.getColorAsString(LauncherStyle.getCurrentStyle().filterTextColor);
-		String filterInnerTextColor = LauncherStyle.getColorAsString(LauncherStyle.getCurrentStyle().filterInnerTextColor);
-
-		String typeLblText = "<html><body>";
-		typeLblText += "<strong><font color=rgb\"(" + filterTextColor + ")\">Filter: </strong></font>";
-		typeLblText += "<font color=rgb\"(" + filterInnerTextColor + ")\">" + origin + "</font>";
-		typeLblText += "<font color=rgb\"(" + filterTextColor + ")\"> / </font>";
-		typeLblText += "<font color=rgb\"(" + filterInnerTextColor + ")\">" + mcVersion + "</font>";
-		typeLblText += "</body></html>";
-
-		typeLbl = new JLabel(typeLblText);
-		typeLbl.setBounds(115, 5, 175, 25);
-		typeLbl.setHorizontalAlignment(SwingConstants.CENTER);
-		add(typeLbl);
 		
 		JTextArea filler = new JTextArea(I18N.getLocaleString("MODS_WAIT_WHILE_LOADING"));
 		filler.setBorder(null);
@@ -358,7 +341,7 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		return modPacksAdded ? getIndex() : -1;
 	}
 
-	public static void updateFilter()
+	/*public static void updateFilter()
 	{
 		String filterTextColor = LauncherStyle.getColorAsString(LauncherStyle.getCurrentStyle().filterTextColor);
 		String filterInnerTextColor = LauncherStyle.getColorAsString(LauncherStyle.getCurrentStyle().filterInnerTextColor);
@@ -372,7 +355,7 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		typeLbl.setText(typeLblText);
 		sortPacks();
 		LaunchFrame.getInstance().updateFooter();
-	}
+	}*/
 
 	private static int getIndex()
 	{
@@ -383,11 +366,11 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 	{
 		if (I18N.currentLocale == Locale.deDE)
 		{
-			typeLbl.setBounds(115, 5, 165, 25);
+			
 		}
 		else
 		{
-			typeLbl.setBounds(115, 5, 175, 25);
+			
 		}
 	}
 
