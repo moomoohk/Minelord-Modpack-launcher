@@ -35,17 +35,14 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
-import net.minelord.data.LauncherStyle;
 import net.minelord.data.ModPack;
 import net.minelord.data.Settings;
 import net.minelord.data.events.ModPackListener;
-import net.minelord.gui.LaunchFrame;
 import net.minelord.gui.dialogs.PrivatePackDialog;
 import net.minelord.gui.dialogs.SearchDialog;
 import net.minelord.locale.I18N;
@@ -137,7 +134,7 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		add(packInfo);
 
 		modPackInfoScroller = new JScrollPane();
-		modPackInfoScroller.setBounds(350, 25, 500, 290);
+		modPackInfoScroller.setBounds(350, 0, 500, 290);
 		modPackInfoScroller.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		modPackInfoScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		modPackInfoScroller.setWheelScrollingEnabled(true);
