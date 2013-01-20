@@ -245,6 +245,7 @@ public class LaunchFrame extends JFrame
 					}
 				});
 
+				ModPack.addListener(frame.modPacksPane);
 				
 				ModPack.loadXml(getXmls());
 
