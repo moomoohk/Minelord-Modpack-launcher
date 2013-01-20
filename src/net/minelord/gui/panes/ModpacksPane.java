@@ -24,7 +24,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -52,9 +51,7 @@ import net.minelord.gui.dialogs.SearchDialog;
 import net.minelord.locale.I18N;
 import net.minelord.locale.I18N.Locale;
 import net.minelord.log.Logger;
-import net.minelord.util.DownloadUtils;
 import net.minelord.util.OSUtils;
-import net.minelord.util.TrackerUtils;
 
 public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListener
 {
@@ -67,14 +64,11 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 
 	private static JLabel typeLbl;
 
-	private static JButton server;
-
 	private JButton privatePack;
 	private static JComboBox version;
 	private static int selectedPack = 0;
 	private static boolean modPacksAdded = false;
 	private static HashMap<Integer, ModPack> currentPacks = new HashMap<Integer, ModPack>();
-	private final ModpacksPane instance = this;
 	private static JEditorPane packInfo;
 
 	// private JLabel loadingImage;
@@ -167,7 +161,7 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		add(packInfo);
 
 		modPackInfoScroller = new JScrollPane();
-		modPackInfoScroller.setBounds(500, 25, 430, 290);
+		modPackInfoScroller.setBounds(400, 25, 430, 290);
 		modPackInfoScroller.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		modPackInfoScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		modPackInfoScroller.setWheelScrollingEnabled(true);
@@ -176,44 +170,6 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 
 		add(modPackInfoScroller);
 		add(logo);
-
-		server = new JButton("Download Server");
-		server.setBounds(420, 5, 130, 25);
-
-		server.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent event)
-			{
-				if (!ModPack.getSelectedPack().getServerUrl().isEmpty())
-				{
-					if (LaunchFrame.modPacksPane.packPanels.size() > 0 && getSelectedModIndex() >= 0)
-					{
-						try
-						{
-							if (!ModPack.getSelectedPack().getServerUrl().equals("") && ModPack.getSelectedPack().getServerUrl() != null)
-							{
-								String version = (Settings.getSettings().getPackVer().equalsIgnoreCase("recommended version") || Settings.getSettings().getPackVer().equalsIgnoreCase("newest version")) ? ModPack.getSelectedPack().getVersion().replace(".", "_") : Settings.getSettings().getPackVer()
-										.replace(".", "_");
-								if (ModPack.getSelectedPack().isPrivatePack())
-								{
-									OSUtils.browse(DownloadUtils.getMinelordLink("privatepacks%5E" + ModPack.getSelectedPack().getDir() + "%5E" + version + "%5E" + ModPack.getSelectedPack().getServerUrl()));
-								}
-								else
-								{
-									OSUtils.browse(DownloadUtils.getMinelordLink("modpacks%5E" + ModPack.getSelectedPack().getDir() + "%5E" + version + "%5E" + ModPack.getSelectedPack().getServerUrl()));
-								}
-								TrackerUtils.sendPageView(ModPack.getSelectedPack().getName() + " Server Download", ModPack.getSelectedPack().getName());
-							}
-						}
-						catch (NoSuchAlgorithmException e)
-						{
-						}
-					}
-				}
-			}
-		});
-		//add(server);
 
 		version = new JComboBox(new String[] {});
 		version.setBounds(200, 5, 130, 25);
@@ -383,14 +339,6 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 					packInfo.setText("<html><img src='file:///" + tempDir.getPath() + File.separator + ModPack.getPack(getIndex()).getImageName() + "' width=400 height=100></img> <br>" + ModPack.getPack(getIndex()).getInfo() + mods);
 					packInfo.setCaretPosition(0);
 
-					if (ModPack.getSelectedPack().getServerUrl().equals("") || ModPack.getSelectedPack().getServerUrl() == null)
-					{
-						server.setEnabled(false);
-					}
-					else
-					{
-						server.setEnabled(true);
-					}
 					String tempVer = Settings.getSettings().getPackVer();
 					version.removeAllItems();
 					version.addItem("Recommended");
