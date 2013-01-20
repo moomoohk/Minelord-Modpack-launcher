@@ -29,7 +29,9 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Calendar;
 import java.util.Formatter;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -143,41 +145,33 @@ public class DownloadUtils extends Thread
 	{
 		String content = null;
 		Scanner scanner = null;
-<<<<<<< HEAD
-		String resolved = "http://launcher.minelord.com";
-		resolved += "/getdate.php";
-=======
-		String resolved = "http://www.minelord.net/getDate";
->>>>>>> Starting work on the modpack pane
+		String resolved = "http://launcher.minelord.com/getdate.php";
 		HttpURLConnection connection = null;
 		try
 		{
 			connection = (HttpURLConnection) new URL(resolved).openConnection();
-<<<<<<< HEAD
 			if (connection.getResponseCode() != 200)
 			{
-				for (String server : downloadServers.values())
-				{
-					if (connection.getResponseCode() != 200 && !server.equalsIgnoreCase("launcher.minelord.com"))
-					{
-						resolved = "http://" + server + "/getdate.php";
-						connection = (HttpURLConnection) new URL(resolved).openConnection();
-					}
-					else
-						if (connection.getResponseCode() == 200)
-						{
-							break;
-						}
-				}
+				scanner = new Scanner(connection.getInputStream());
+				scanner.useDelimiter("\\Z");
+				content = scanner.next();
 			}
-=======
->>>>>>> Starting work on the modpack pane
-			scanner = new Scanner(connection.getInputStream());
-			scanner.useDelimiter("\\Z");
-			content = scanner.next();
+			else
+			{
+				String day=""+new GregorianCalendar().get(Calendar.DAY_OF_MONTH);
+				String	month=""+(new GregorianCalendar().get(Calendar.MONTH)+1);
+				String year=""+(new GregorianCalendar().get(Calendar.YEAR)%100);
+				if(day.length()==1)
+					day="0"+day;
+				if(month.length()==1)
+					month="0"+month;
+				Logger.logWarn("Couldn't get date from server. using local date instead.");
+				content=day+month+year;
+			}
 		}
 		catch (IOException e)
 		{
+			//TODO empty catch? really?
 		}
 		finally
 		{
