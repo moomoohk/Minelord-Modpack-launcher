@@ -23,7 +23,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -310,8 +309,6 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 					}
 					packPanels.get(i).setBackground(UIManager.getColor("control").darker().darker());
 					packPanels.get(i).setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-					File tempDir = new File(OSUtils.getDynamicStorageLocation(), "ModPacks" + File.separator + ModPack.getPack(getIndex()).getDir());
-
 					packInfo.setText("<html><br>" + ModPack.getPack(getIndex()).getInfo() + mods);
 					packInfo.setCaretPosition(0);
 

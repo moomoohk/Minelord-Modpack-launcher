@@ -243,7 +243,7 @@ public class LaunchFrame extends JFrame
 					}
 				});
 
-				ModPack.addListener(frame.modPacksPane);
+				ModPack.addListener(modPacksPane);
 				
 				ModPack.loadXml(getXmls());
 
@@ -413,7 +413,7 @@ public class LaunchFrame extends JFrame
 			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
-				if (users.getSelectedIndex() > 1 && modPacksPane.packPanels.size() > 0)
+				if (users.getSelectedIndex() > 1 && ModpacksPane.packPanels.size() > 0)
 				{
 					Settings.getSettings().setLastPack(ModPack.getSelectedPack().getDir());
 					saveSettings();
@@ -437,7 +437,7 @@ public class LaunchFrame extends JFrame
 			{
 				if (!ModPack.getSelectedPack().getServerUrl().isEmpty())
 				{
-					if (modPacksPane.packPanels.size() > 0 && getSelectedModIndex() >= 0)
+					if (ModpacksPane.packPanels.size() > 0 && getSelectedModIndex() >= 0)
 					{
 						try
 						{
@@ -469,7 +469,7 @@ public class LaunchFrame extends JFrame
 			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
-				if (mapsPane.mapPanels.size() > 0 && getSelectedMapIndex() >= 0)
+				if (MapsPane.mapPanels.size() > 0 && getSelectedMapIndex() >= 0)
 				{
 					MapManager man = new MapManager(new JFrame(), true);
 					man.setVisible(true);
@@ -491,7 +491,7 @@ public class LaunchFrame extends JFrame
 			@Override
 			public void actionPerformed(ActionEvent event)
 			{
-				if (mapsPane.mapPanels.size() > 0 && getSelectedMapIndex() >= 0)
+				if (MapsPane.mapPanels.size() > 0 && getSelectedMapIndex() >= 0)
 				{
 					try
 					{
@@ -512,7 +512,7 @@ public class LaunchFrame extends JFrame
 			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
-				if (tpPane.texturePackPanels.size() > 0 && getSelectedTexturePackIndex() >= 0)
+				if (TexturepackPane.texturePackPanels.size() > 0 && getSelectedTexturePackIndex() >= 0)
 				{
 					TextureManager man = new TextureManager(new JFrame(), true);
 					man.setVisible(true);
@@ -872,7 +872,7 @@ public class LaunchFrame extends JFrame
 	{
 		String installpath = Settings.getSettings().getInstallPath();
 		String temppath = OSUtils.getDynamicStorageLocation();
-		ModPack pack = ModPack.getPack(modPacksPane.getSelectedModIndex());
+		ModPack pack = ModPack.getPack(ModpacksPane.getSelectedModIndex());
 		Logger.logInfo("dirs mk'd");
 		File source = new File(temppath, "ModPacks/" + pack.getDir() + "/.minecraft");
 		if (!source.exists())
@@ -983,7 +983,7 @@ public class LaunchFrame extends JFrame
 	 */
 	public static int getSelectedModIndex()
 	{
-		return instance.modPacksPane.getSelectedModIndex();
+		return ModpacksPane.getSelectedModIndex();
 	}
 
 	/**
@@ -991,7 +991,7 @@ public class LaunchFrame extends JFrame
 	 */
 	public static int getSelectedMapIndex()
 	{
-		return instance.mapsPane.getSelectedMapIndex();
+		return MapsPane.getSelectedMapIndex();
 	}
 
 	/**
@@ -999,7 +999,7 @@ public class LaunchFrame extends JFrame
 	 */
 	public static int getSelectedTexturePackIndex()
 	{
-		return instance.tpPane.getSelectedTexturePackIndex();
+		return TexturepackPane.getSelectedTexturePackIndex();
 	}
 
 	/**
@@ -1007,7 +1007,7 @@ public class LaunchFrame extends JFrame
 	 */
 	public static int getSelectedMapInstallIndex()
 	{
-		return instance.mapInstallLocation.getSelectedIndex();
+		return LaunchFrame.mapInstallLocation.getSelectedIndex();
 	}
 
 	/**
@@ -1015,7 +1015,7 @@ public class LaunchFrame extends JFrame
 	 */
 	public static int getSelectedTPInstallIndex()
 	{
-		return instance.tpInstallLocation.getSelectedIndex();
+		return LaunchFrame.tpInstallLocation.getSelectedIndex();
 	}
 
 	/**
@@ -1061,14 +1061,14 @@ public class LaunchFrame extends JFrame
 		Logger.logInfo(ModPack.getSelectedPack().getDir());
 		ModManager man = new ModManager(new JFrame(), true);
 		man.setVisible(true);
-		if (man.erroneous)
+		if (ModManager.erroneous)
 		{
 			return false;
 		}
 		try
 		{
 			installMods(ModPack.getSelectedPack().getDir());
-			man.cleanUp();
+			ModManager.cleanUp();
 		}
 		catch (IOException e)
 		{
@@ -1115,7 +1115,7 @@ public class LaunchFrame extends JFrame
 		switch (currentPane)
 		{
 		case MAPS:
-			result = mapsPane.type.equals("Server");
+			result = MapsPane.type.equals("Server");
 			mapInstall.setVisible(!result);
 			mapInstallLocation.setVisible(!result);
 			serverMap.setVisible(result);
