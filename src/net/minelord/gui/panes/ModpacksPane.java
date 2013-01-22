@@ -89,7 +89,7 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		final JPanel p = new JPanel();
 		p.setBounds(0, 0, 420, 55);
 		p.setLayout(null);
-		
+
 		JTextArea filler = new JTextArea(I18N.getLocaleString("MODS_WAIT_WHILE_LOADING"));
 		filler.setBorder(null);
 		filler.setEditable(false);
@@ -100,11 +100,11 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		p.add(filler);
 		//packs.add(p);
 		packs.add(loading);
-		
-		
+
+
 		logo.setBounds(-10, -50, 400, 400);
 		loading.setBounds(520, 100 , 64, 64);
-		
+
 		packsScroll = new JScrollPane();
 		packsScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		packsScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -113,8 +113,8 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		// packsScroll.setViewportView(packs);
 		packsScroll.getVerticalScrollBar().setUnitIncrement(19);
 		//add(packsScroll);
-		
-		
+
+
 		packInfo = new JEditorPane();
 		packInfo.setEditable(false);
 		packInfo.setContentType("text/html");
@@ -140,6 +140,12 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 			modPackInfoScroller.setBounds(350, 0, 490, 310);
 		}
 		else if ( OSUtils.getCurrentOS() == OS.MACOSX )
+		Logger.logInfo("mac: "+OSUtils.OS.MACOSX+" windows: "+OSUtils.OS.WINDOWS);
+		if (OSUtils.getCurrentOS() == OS.WINDOWS)
+		{
+			modPackInfoScroller.setBounds(350, 0, 490, 310);
+		}
+		else
 		{
 			modPackInfoScroller.setBounds(350, 0, 500, 310);
 		}
@@ -371,11 +377,11 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 	{
 		if (I18N.currentLocale == Locale.deDE)
 		{
-			
+
 		}
 		else
 		{
-			
+
 		}
 	}
 

@@ -346,6 +346,7 @@ public class LaunchFrame extends JFrame
 
 		donate = new JButton(I18N.getLocaleString("DONATE_BUTTON"));
 		donate.setBounds(390, 20, 80, 30);
+		donate.setToolTipText("We run a vanilla server as well!");
 		donate.addActionListener(new ActionListener()
 		{
 			@Override
