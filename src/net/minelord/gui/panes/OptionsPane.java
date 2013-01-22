@@ -48,7 +48,8 @@ import net.minelord.gui.dialogs.AdvancedOptionsDialog;
 import net.minelord.locale.I18N;
 import net.minelord.log.Logger;
 
-public class OptionsPane extends JPanel implements ILauncherPane {
+public class OptionsPane extends JPanel implements ILauncherPane
+{
 	private JToggleButton tglbtnForceUpdate;
 	private JButton installBrowseBtn, advancedOptionsBtn;
 	private JLabel lblInstallFolder, lblRamMaximum, lblLocale, currentRam, minecraftSize, lblX;
@@ -58,15 +59,22 @@ public class OptionsPane extends JPanel implements ILauncherPane {
 	private JCheckBox chckbxShowConsole, keepLauncherOpen;
 	private final Settings settings;
 
-	private FocusListener settingsChangeListener = new FocusListener() {
+	private FocusListener settingsChangeListener = new FocusListener()
+	{
 		@Override
-		public void focusLost(FocusEvent e) {
+		public void focusLost(FocusEvent e)
+		{
 			saveSettingsInto(settings);
 		}
-		@Override public void focusGained(FocusEvent e) { }
+
+		@Override
+		public void focusGained(FocusEvent e)
+		{
+		}
 	};
 
-	public OptionsPane (Settings settings) {
+	public OptionsPane(Settings settings)
+	{
 		this.settings = settings;
 		setBorder(new EmptyBorder(5, 5, 5, 5));
 
@@ -89,9 +97,11 @@ public class OptionsPane extends JPanel implements ILauncherPane {
 
 		tglbtnForceUpdate = new JToggleButton(I18N.getLocaleString("FORCE_UPDATE"));
 		tglbtnForceUpdate.setBounds(147, 48, 629, 29);
-		tglbtnForceUpdate.addActionListener(new ActionListener(){
+		tglbtnForceUpdate.addActionListener(new ActionListener()
+		{
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent arg0)
+			{
 				saveSettingsInto(OptionsPane.this.settings);
 			}
 		});
@@ -103,17 +113,23 @@ public class OptionsPane extends JPanel implements ILauncherPane {
 		long ram = 0;
 		OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
 		Method m;
-		try {
+		try
+		{
 			m = operatingSystemMXBean.getClass().getDeclaredMethod("getTotalPhysicalMemorySize");
 			m.setAccessible(true);
 			Object value = m.invoke(operatingSystemMXBean);
-			if(value != null) {
+			if (value != null)
+			{
 				ram = Long.valueOf(value.toString()) / 1024 / 1024;
-			} else {
+			}
+			else
+			{
 				Logger.logWarn("Could not get RAM Value");
 				ram = 8192;
 			}
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			Logger.logError(e.getMessage(), e);
 		}
 
@@ -124,23 +140,33 @@ public class OptionsPane extends JPanel implements ILauncherPane {
 		ramMaximum.setMinorTickSpacing(256);
 		ramMaximum.setMinimum(256);
 		String vmType = System.getProperty("sun.arch.data.model");
-		if(vmType != null){
-			if(vmType.equals("64")) {
-				ramMaximum.setMaximum((int)ram);
-			} else if(vmType.equals("32")) {
-				if(ram < 1024) {
-					ramMaximum.setMaximum((int)ram);
-				} else {
-					ramMaximum.setMaximum(1024);
-				}
+		if (vmType != null)
+		{
+			if (vmType.equals("64"))
+			{
+				ramMaximum.setMaximum((int) ram);
 			}
+			else
+				if (vmType.equals("32"))
+				{
+					if (ram < 1024)
+					{
+						ramMaximum.setMaximum((int) ram);
+					}
+					else
+					{
+						ramMaximum.setMaximum(1024);
+					}
+				}
 		}
 		int ramMax = (Integer.parseInt(settings.getRamMax()) > ramMaximum.getMaximum()) ? ramMaximum.getMaximum() : Integer.parseInt(settings.getRamMax());
 		ramMaximum.setValue(ramMax);
 		currentRam.setText(getAmount());
-		ramMaximum.addChangeListener(new ChangeListener() {
+		ramMaximum.addChangeListener(new ChangeListener()
+		{
 			@Override
-			public void stateChanged(ChangeEvent arg0) {
+			public void stateChanged(ChangeEvent arg0)
+			{
 				currentRam.setText(getAmount());
 			}
 		});
@@ -153,17 +179,21 @@ public class OptionsPane extends JPanel implements ILauncherPane {
 		add(currentRam);
 
 		String[] locales = new String[I18N.localeIndices.size()];
-		for(Map.Entry<Integer, String> entry : I18N.localeIndices.entrySet()) {
+		for (Map.Entry<Integer, String> entry : I18N.localeIndices.entrySet())
+		{
 			Logger.logInfo("[i18n] Added " + entry.getKey().toString() + " " + entry.getValue() + " to options pane");
 			locales[entry.getKey()] = I18N.localeFiles.get(entry.getValue());
 		}
 		locale = new JComboBox(locales);
 		locale.setBounds(190, 130, 222, 25);
-		locale.addActionListener(new ActionListener() {
+		locale.addActionListener(new ActionListener()
+		{
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e)
+			{
 				I18N.setLocale(I18N.localeIndices.get(locale.getSelectedIndex()));
-				if(LaunchFrame.getInstance() != null) {
+				if (LaunchFrame.getInstance() != null)
+				{
 					LaunchFrame.getInstance().updateLocale();
 				}
 			}
@@ -187,12 +217,14 @@ public class OptionsPane extends JPanel implements ILauncherPane {
 		keepLauncherOpen.setSelected(settings.getKeepLauncherOpen());
 		keepLauncherOpen.addFocusListener(settingsChangeListener);
 		add(keepLauncherOpen);
-		
+
 		advancedOptionsBtn = new JButton(I18N.getLocaleString("ADVANCED_OPTIONS"));
 		advancedOptionsBtn.setBounds(147, 275, 629, 29);
-		advancedOptionsBtn.addActionListener(new ActionListener(){
+		advancedOptionsBtn.addActionListener(new ActionListener()
+		{
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent arg0)
+			{
 				AdvancedOptionsDialog aod = new AdvancedOptionsDialog();
 				aod.setVisible(true);
 			}
@@ -201,12 +233,14 @@ public class OptionsPane extends JPanel implements ILauncherPane {
 		add(advancedOptionsBtn);
 	}
 
-	public void setInstallFolderText(String text) {
+	public void setInstallFolderText(String text)
+	{
 		installFolderTextField.setText(text);
 		saveSettingsInto(settings);
 	}
 
-	public void saveSettingsInto(Settings settings) {
+	public void saveSettingsInto(Settings settings)
+	{
 		settings.setInstallPath(installFolderTextField.getText());
 		settings.setForceUpdate(tglbtnForceUpdate.isSelected());
 		settings.setRamMax(String.valueOf(ramMaximum.getValue()));
@@ -216,17 +250,22 @@ public class OptionsPane extends JPanel implements ILauncherPane {
 		settings.save();
 	}
 
-	public void updateLocale() {
+	public void updateLocale()
+	{
 		lblInstallFolder.setText(I18N.getLocaleString("INSTALL_FOLDER"));
 		tglbtnForceUpdate.setText(I18N.getLocaleString("FORCE_UPDATE"));
 		lblRamMaximum.setText(I18N.getLocaleString("RAM_MAX"));
 		lblLocale.setText(I18N.getLocaleString("LANGUAGE"));
 	}
 
-	private String getAmount() {
+	private String getAmount()
+	{
 		int ramMax = ramMaximum.getValue();
 		return (ramMax >= 1024) ? Math.round((ramMax / 256) / 4) + "." + (((ramMax / 256) % 4) * 25) + " GB" : ramMax + " MB";
 	}
 
-	@Override public void onVisible() { }
+	@Override
+	public void onVisible()
+	{
+	}
 }
