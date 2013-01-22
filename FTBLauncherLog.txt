@@ -1,15 +1,8 @@
-[15:23:20] [INFO] ModpacksPane.<init>:135: file:/Users/MeshulamSilk/Documents/workspace/Minelord-Modpack-launcher/res/image/logo_modpack.png
-[15:23:20] [INFO] OptionsPane.<init>:157: [i18n] Added 0 enUS to options pane
-[15:23:20] [INFO] I18N.setLocale:157: [i18n] enUS English language file loaded!
-[15:23:24] [INFO] ModpackLoader.run:57: /Users/MeshulamSilk/Library/Application Support/minelordlauncher/ModPacks/modpacks.xml
-[15:23:24] [INFO] ModpackLoader.run:67: Loading modpack information for modpacks.xml...
-[15:23:26] [INFO] ModpacksPane.onModPackAdded:335: Adding pack 1
-[15:23:26] [INFO] ModpacksPane.onModPackAdded:335: Adding pack 2
-[15:23:26] [INFO] ModpacksPane.onModPackAdded:335: Adding pack 3
-[15:23:26] [INFO] ModpacksPane.onModPackAdded:335: Adding pack 4
-[15:23:26] [INFO] ModpacksPane.onModPackAdded:335: Adding pack 5
-[15:23:26] [INFO] ModpacksPane.onModPackAdded:335: Adding pack 6
-[15:23:26] [INFO] ModpacksPane.onModPackAdded:335: Adding pack 7
-[15:23:26] [INFO] MapLoader.run:45: loading map information...
-[15:23:26] [INFO] TexturePackLoader.run:40: loading texture pack information...
-[15:23:27] [INFO] TexturepackPane.onTexturePackAdded:223: Adding texture pack 1
+[13:29:10] [INFO] OptionsPane.<init>:157: [i18n] Added 0 enUS to options pane
+[13:29:10] [INFO] I18N.setLocale:157: [i18n] enUS English language file loaded!
+[13:29:10] [INFO] ModpackLoader.run:57: C:\Users\Thijn\AppData\Roaming\minelordlauncher\ModPacks\modpacks.xml
+[13:29:10] [INFO] ModpackLoader.run:67: Loading modpack information for modpacks.xml...
+[13:29:10] [INFO] ModpacksPane.onModPackAdded:272: Adding pack 1
+[13:29:10] [INFO] MapLoader.run:45: loading map information...
+[13:29:10] [INFO] TexturePackLoader.run:40: loading texture pack information...
+[13:29:10] [INFO] TexturepackPane.onTexturePackAdded:223: Adding texture pack 1

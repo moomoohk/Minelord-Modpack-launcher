@@ -49,6 +49,7 @@ import net.minelord.locale.I18N;
 import net.minelord.locale.I18N.Locale;
 import net.minelord.log.Logger;
 import net.minelord.util.OSUtils;
+import net.minelord.util.OSUtils.OS;
 
 public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListener
 {
@@ -134,7 +135,14 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		add(packInfo);
 
 		modPackInfoScroller = new JScrollPane();
-		modPackInfoScroller.setBounds(350, 0, 500, 310);
+		if ( OSUtils.getCurrentOS() == OS.WINDOWS )
+		{
+			modPackInfoScroller.setBounds(350, 0, 490, 310);
+		}
+		else if ( OSUtils.getCurrentOS() == OS.MACOSX )
+		{
+			modPackInfoScroller.setBounds(350, 0, 500, 310);
+		}
 		modPackInfoScroller.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		modPackInfoScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		modPackInfoScroller.setWheelScrollingEnabled(true);
@@ -309,7 +317,7 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 					packPanels.get(i).setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 					File tempDir = new File(OSUtils.getDynamicStorageLocation(), "ModPacks" + File.separator + ModPack.getPack(getIndex()).getDir());
 
-					packInfo.setText("<html><img src='file:///" + tempDir.getPath() + File.separator + ModPack.getPack(getIndex()).getImageName() + "' width=400 height=100></img> <br>" + ModPack.getPack(getIndex()).getInfo() + mods);
+					packInfo.setText("<html><br>" + ModPack.getPack(getIndex()).getInfo() + mods);
 					packInfo.setCaretPosition(0);
 
 					String tempVer = Settings.getSettings().getPackVer();
