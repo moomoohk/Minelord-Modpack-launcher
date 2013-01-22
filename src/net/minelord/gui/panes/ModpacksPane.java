@@ -135,12 +135,7 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		add(packInfo);
 
 		modPackInfoScroller = new JScrollPane();
-		if ( OSUtils.getCurrentOS() == OS.WINDOWS )
-		{
-			modPackInfoScroller.setBounds(350, 0, 490, 310);
-		}
-		else if ( OSUtils.getCurrentOS() == OS.MACOSX )
-		Logger.logInfo("mac: "+OSUtils.OS.MACOSX+" windows: "+OSUtils.OS.WINDOWS);
+
 		if (OSUtils.getCurrentOS() == OS.WINDOWS)
 		{
 			modPackInfoScroller.setBounds(350, 0, 490, 310);
