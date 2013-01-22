@@ -43,7 +43,7 @@ public class ModPack
 {
 	private String name, author, version, url, dir, mcVersion, serverUrl, logoName, imageName, info, animation, sep = File.separator, xml;
 	private String[] mods, oldVersions;
-	private Image logo, image;
+	private Image image;
 	private int index;
 	private boolean updated = false;
 	private final static ArrayList<ModPack> packs = new ArrayList<ModPack>();
@@ -235,47 +235,6 @@ public class ModPack
 		String installPath = OSUtils.getDynamicStorageLocation();
 		File tempDir = new File(installPath, "ModPacks" + sep + dir);
 		File verFile = new File(tempDir, "version");
-		URL url_;
-		if (!upToDate(verFile))
-		{
-			url_ = new URL(DownloadUtils.getStaticMinelordLink(logo));
-			this.logo = Toolkit.getDefaultToolkit().createImage(url_);
-			BufferedImage tempImg = ImageIO.read(url_);
-			ImageIO.write(tempImg, "png", new File(tempDir, logo));
-			tempImg.flush();
-			url_ = new URL(DownloadUtils.getStaticMinelordLink(image));
-			this.image = Toolkit.getDefaultToolkit().createImage(url_);
-			tempImg = ImageIO.read(url_);
-			ImageIO.write(tempImg, "png", new File(tempDir, image));
-			tempImg.flush();
-		}
-		else
-		{
-			if (new File(tempDir, logo).exists())
-			{
-				this.logo = Toolkit.getDefaultToolkit().createImage(tempDir.getPath() + sep + logo);
-			}
-			else
-			{
-				url_ = new URL(DownloadUtils.getStaticMinelordLink(logo));
-				this.logo = Toolkit.getDefaultToolkit().createImage(url_);
-				BufferedImage tempImg = ImageIO.read(url_);
-				ImageIO.write(tempImg, "png", new File(tempDir, logo));
-				tempImg.flush();
-			}
-			if (new File(tempDir, image).exists())
-			{
-				this.image = Toolkit.getDefaultToolkit().createImage(tempDir.getPath() + sep + image);
-			}
-			else
-			{
-				url_ = new URL(DownloadUtils.getStaticMinelordLink(image));
-				this.image = Toolkit.getDefaultToolkit().createImage(url_);
-				BufferedImage tempImg = ImageIO.read(url_);
-				ImageIO.write(tempImg, "png", new File(tempDir, image));
-				tempImg.flush();
-			}
-		}
 	}
 
 	/**
@@ -353,16 +312,6 @@ public class ModPack
 	public String getVersion()
 	{
 		return version;
-	}
-
-	/**
-	 * Used to get an Image variable of the modpack's logo
-	 * 
-	 * @return - the modpacks logo
-	 */
-	public Image getLogo()
-	{
-		return logo;
 	}
 
 	/**
