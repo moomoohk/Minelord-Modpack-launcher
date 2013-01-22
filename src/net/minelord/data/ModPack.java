@@ -16,34 +16,19 @@
  */
 package net.minelord.data;
 
-import java.awt.Image;
-import java.awt.Toolkit;
-import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.imageio.ImageIO;
-
 import net.minelord.data.events.ModPackListener;
 import net.minelord.gui.panes.ModpacksPane;
-import net.minelord.log.Logger;
-import net.minelord.util.DownloadUtils;
-import net.minelord.util.OSUtils;
 import net.minelord.workers.ModpackLoader;
 
 public class ModPack
 {
-	private String name, author, version, url, dir, mcVersion, serverUrl, logoName, imageName, info, animation, sep = File.separator, xml;
+	private String name, author, version, url, dir, mcVersion, serverUrl, logoName, imageName, info, animation, xml;
 	private String[] mods, oldVersions;
-	private Image image;
 	private int index;
 	private boolean updated = false;
 	private final static ArrayList<ModPack> packs = new ArrayList<ModPack>();
@@ -232,46 +217,6 @@ public class ModPack
 		{
 			this.oldVersions = oldVersions.split(";");
 		}
-		String installPath = OSUtils.getDynamicStorageLocation();
-		File tempDir = new File(installPath, "ModPacks" + sep + dir);
-		File verFile = new File(tempDir, "version");
-	}
-
-	/**
-	 * Used to check if the cached items are up to date
-	 * 
-	 * @param verFile
-	 *            - the version file to check
-	 * @return checks the version file against the current modpack version
-	 */
-	private boolean upToDate(File verFile)
-	{
-		boolean result = true;
-		try
-		{
-			if (!verFile.exists())
-			{
-				verFile.getParentFile().mkdirs();
-				verFile.createNewFile();
-				result = false;
-			}
-			BufferedReader in = new BufferedReader(new FileReader(verFile));
-			String line;
-			if ((line = in.readLine()) == null || Integer.parseInt(version.replace(".", "")) > Integer.parseInt(line.replace(".", "")))
-			{
-				BufferedWriter out = new BufferedWriter(new FileWriter(verFile));
-				out.write(version);
-				out.flush();
-				out.close();
-				result = false;
-			}
-			in.close();
-		}
-		catch (IOException e)
-		{
-			Logger.logError(e.getMessage(), e);
-		}
-		return result;
 	}
 
 	/**
@@ -322,16 +267,6 @@ public class ModPack
 	public String getUrl()
 	{
 		return url;
-	}
-
-	/**
-	 * Used to get an Image variable of the modpack's splash image
-	 * 
-	 * @return - the modpacks splash image
-	 */
-	public Image getImage()
-	{
-		return image;
 	}
 
 	/**
