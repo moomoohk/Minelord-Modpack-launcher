@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -62,6 +63,7 @@ import net.minelord.data.ModPack;
 import net.minelord.data.Settings;
 import net.minelord.data.TexturePack;
 import net.minelord.data.UserManager;
+import net.minelord.gui.dialogs.ConnectionProblemDialog;
 import net.minelord.gui.dialogs.InstallDirectoryDialog;
 import net.minelord.gui.dialogs.LauncherUpdateDialog;
 import net.minelord.gui.dialogs.PasswordDialog;
@@ -153,7 +155,7 @@ public class LaunchFrame extends JFrame
 	{
 		tracker.setEnabled(true);
 		TrackerUtils.sendPageView("net/minelord/gui/LaunchFrame.java", "Launcher Start v" + version);
-		
+
 		if (new File(Settings.getSettings().getInstallPath(), "MinelordLauncherLog.txt").exists())
 		{
 			new File(Settings.getSettings().getInstallPath(), "MinelordLauncherLog.txt").delete();
@@ -166,7 +168,7 @@ public class LaunchFrame extends JFrame
 
 		DownloadUtils thread = new DownloadUtils();
 		thread.start();
-		
+
 		Logger.logInfo("Minelord Launcher starting up (version " + version + ")");
 		Logger.logInfo("Java version: " + System.getProperty("java.version"));
 		Logger.logInfo("Java vendor: " + System.getProperty("java.vendor"));
@@ -221,7 +223,19 @@ public class LaunchFrame extends JFrame
 				{
 					dynamicDir.mkdirs();
 				}
-
+				try
+				{			
+					if(((HttpURLConnection) new URL("http://minelord.com").openConnection()).getResponseCode()!=200)
+					{
+						ConnectionProblemDialog cpd=new ConnectionProblemDialog();
+						cpd.setVisible(true);
+					}
+				}
+				catch(Exception e)
+				{
+					ConnectionProblemDialog cpd=new ConnectionProblemDialog();
+					cpd.setVisible(true);
+				}
 				userManager = new UserManager(new File(OSUtils.getDynamicStorageLocation(), "logindata"));
 				con = new LauncherConsole();
 				if (Settings.getSettings().getConsoleActive())
@@ -244,7 +258,7 @@ public class LaunchFrame extends JFrame
 				});
 
 				ModPack.addListener(modPacksPane);
-				
+
 				ModPack.loadXml(getXmls());
 
 				Map.addListener(frame.mapsPane);
@@ -254,7 +268,7 @@ public class LaunchFrame extends JFrame
 				// TexturePack.loadAll();
 
 				UpdateChecker updateChecker = new UpdateChecker(buildNumber);
-				
+
 				if (updateChecker.shouldUpdate())
 				{
 					LauncherUpdateDialog p = new LauncherUpdateDialog(updateChecker);
