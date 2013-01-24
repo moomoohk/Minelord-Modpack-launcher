@@ -154,9 +154,9 @@ public class LaunchFrame extends JFrame
 		tracker.setEnabled(true);
 		TrackerUtils.sendPageView("net/minelord/gui/LaunchFrame.java", "Launcher Start v" + version);
 		
-		if (new File(Settings.getSettings().getInstallPath(), "FTBLauncherLog.txt").exists())
+		if (new File(Settings.getSettings().getInstallPath(), "MinelordLauncherLog.txt").exists())
 		{
-			new File(Settings.getSettings().getInstallPath(), "FTBLauncherLog.txt").delete();
+			new File(Settings.getSettings().getInstallPath(), "MinelordLauncherLog.txt").delete();
 		}
 
 		if (new File(Settings.getSettings().getInstallPath(), "MinecraftLog.txt").exists())

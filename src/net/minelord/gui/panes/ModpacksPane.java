@@ -42,7 +42,7 @@ import javax.swing.event.HyperlinkListener;
 import net.minelord.data.ModPack;
 import net.minelord.data.Settings;
 import net.minelord.data.events.ModPackListener;
-import net.minelord.gui.dialogs.PrivatePackDialog;
+import net.minelord.gui.dialogs.ConnectionProblemDialog;
 import net.minelord.gui.dialogs.SearchDialog;
 import net.minelord.locale.I18N;
 import net.minelord.locale.I18N.Locale;
@@ -173,11 +173,10 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				PrivatePackDialog ap = new PrivatePackDialog();
+				ConnectionProblemDialog ap = new ConnectionProblemDialog();
 				ap.setVisible(true);
 			}
 		});
-
 		//add(privatePack);
 	}
 
