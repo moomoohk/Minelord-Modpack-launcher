@@ -34,13 +34,19 @@ import net.minelord.gui.LaunchFrame;
 import net.minelord.locale.I18N;
 import net.minelord.util.OSUtils;
 
-public class InstallDirectoryDialog extends JDialog {
+public class InstallDirectoryDialog extends JDialog
+{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JLabel lblInstallFolder;
 	private JTextField installFolderTextField;
 	private JLabel text = new JLabel("<html><body><center><font size=\"3\"><strong>Since this is your first time using the launcher, we suggest setting the install directory.</strong></font></center></body></html>");
 	private JButton applyButton = new JButton("Apply");
 
-	public InstallDirectoryDialog() {
+	public InstallDirectoryDialog()
+	{
 		super(LaunchFrame.getInstance(), true);
 		setIconImage(Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/image/logo_ftb.png")));
 		setTitle("Choose Install Directory");
@@ -63,31 +69,41 @@ public class InstallDirectoryDialog extends JDialog {
 
 		installFolderTextField = new JTextField();
 		installFolderTextField.setBounds(90, 50, 400, 23);
-		installFolderTextField.addFocusListener(new FocusListener() {
+		installFolderTextField.addFocusListener(new FocusListener()
+		{
 			@Override
-			public void focusLost(FocusEvent e) {
+			public void focusLost(FocusEvent e)
+			{
 				Settings.getSettings().setInstallPath(installFolderTextField.getText());
 				Settings.getSettings().save();
 			}
-			@Override public void focusGained(FocusEvent e) { }
+
+			@Override
+			public void focusGained(FocusEvent e)
+			{
+			}
 		});
 		installFolderTextField.setColumns(10);
 		installFolderTextField.setText(OSUtils.getDefInstallPath());
 		add(installFolderTextField);
 
 		applyButton.setBounds(240, 85, 80, 23);
-		applyButton.addActionListener(new ActionListener() {
+		applyButton.addActionListener(new ActionListener()
+		{
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent arg0)
+			{
 				setVisible(false);
 			}
 		});
 		add(applyButton);
 
 		getRootPane().setDefaultButton(applyButton);
+		setLocationRelativeTo(null);
 	}
 
-	public void setInstallFolderText(String text) {
+	public void setInstallFolderText(String text)
+	{
 		installFolderTextField.setText(text);
 		Settings.getSettings().setInstallPath(installFolderTextField.getText());
 		Settings.getSettings().save();
