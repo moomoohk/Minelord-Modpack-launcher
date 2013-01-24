@@ -32,7 +32,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -70,6 +69,7 @@ import net.minelord.gui.dialogs.PasswordDialog;
 import net.minelord.gui.dialogs.PlayOfflineDialog;
 import net.minelord.gui.dialogs.ProfileAdderDialog;
 import net.minelord.gui.dialogs.ProfileEditorDialog;
+import net.minelord.gui.dialogs.TestingConnectionThing;
 import net.minelord.gui.panes.ILauncherPane;
 import net.minelord.gui.panes.MapsPane;
 import net.minelord.gui.panes.ModpacksPane;
@@ -223,19 +223,14 @@ public class LaunchFrame extends JFrame
 				{
 					dynamicDir.mkdirs();
 				}
-				try
-				{			
-					if(((HttpURLConnection) new URL("http://minelord.com").openConnection()).getResponseCode()!=200)
-					{
-						ConnectionProblemDialog cpd=new ConnectionProblemDialog();
-						cpd.setVisible(true);
-					}
-				}
-				catch(Exception e)
+				
+				new TestingConnectionThing();
+				if(TestingConnectionThing.offline)
 				{
 					ConnectionProblemDialog cpd=new ConnectionProblemDialog();
 					cpd.setVisible(true);
 				}
+				
 				userManager = new UserManager(new File(OSUtils.getDynamicStorageLocation(), "logindata"));
 				con = new LauncherConsole();
 				if (Settings.getSettings().getConsoleActive())

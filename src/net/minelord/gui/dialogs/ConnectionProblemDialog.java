@@ -41,11 +41,11 @@ public class ConnectionProblemDialog extends JDialog
 		super(LaunchFrame.getInstance(), true);
 		setIconImage(Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/image/logo_minelord.png")));
 		getContentPane().setLayout(null);
-		setBounds(300, 300, 300, 250);
+		setBounds(300, 200, 300, 200);
 		setTitle("Connection problem");
 		setResizable(false);
 
-		btnQuit.setBounds(10, 178, 82, 23);
+		btnQuit.setBounds(10, 128, 82, 23);
 		btnQuit.addActionListener(new ActionListener()
 		{
 
@@ -58,7 +58,7 @@ public class ConnectionProblemDialog extends JDialog
 		add(btnQuit);
 		getRootPane().setDefaultButton(btnQuit);
 
-		btnContinue.setBounds(192, 178, 82, 23);
+		btnContinue.setBounds(192, 128, 82, 23);
 		btnContinue.addActionListener(new ActionListener()
 		{
 			@Override
@@ -73,7 +73,7 @@ public class ConnectionProblemDialog extends JDialog
 		editorPane.setEditable(false);
 		editorPane.setHighlighter(null);
 		editorPane.setContentType("text/html");
-		editorPane.setText("It would appear that the launcher cannot connect to the internet. If you don't haven't launched the launcher before, you should wait until you have a working internet connection.");
+		editorPane.setText("It would appear that the launcher cannot connect to the internet. If you haven't launched the launcher before, you should wait until you have a working internet connection.");
 		add(editorPane);
 		setLocationRelativeTo(null);
 	}
