@@ -19,15 +19,12 @@ package net.minelord.gui.panes;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
@@ -42,7 +39,6 @@ import javax.swing.event.HyperlinkListener;
 import net.minelord.data.ModPack;
 import net.minelord.data.Settings;
 import net.minelord.data.events.ModPackListener;
-import net.minelord.gui.dialogs.ConnectionProblemDialog;
 import net.minelord.gui.dialogs.SearchDialog;
 import net.minelord.locale.I18N;
 import net.minelord.locale.I18N.Locale;
@@ -56,11 +52,11 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 
 	private static JPanel packs;
 	private JLabel logo = new JLabel(new ImageIcon(this.getClass().getResource("/image/logo_modpack.png")));
-	private JLabel loading=new JLabel(new ImageIcon(this.getClass().getResource("/image/gif_loading.gif")));
+	private JLabel loading = new JLabel(new ImageIcon(this.getClass().getResource("/image/gif_loading.gif")));
+	private JLabel offline = new JLabel(new ImageIcon(this.getClass().getResource("/image/bg_offline.png")));
 	public static ArrayList<JPanel> packPanels;
 	private static JScrollPane packsScroll;
 
-	private JButton privatePack;
 	private static JComboBox version;
 	private static int selectedPack = 0;
 	private static boolean modPacksAdded = false;
@@ -97,12 +93,11 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		filler.setBackground(new Color(255, 255, 255, 0));
 		// p.add(loadingImage);
 		p.add(filler);
-		//packs.add(p);
+		// packs.add(p);
 		packs.add(loading);
 
-
 		logo.setBounds(-10, -50, 400, 400);
-		loading.setBounds(520, 100 , 64, 64);
+		loading.setBounds(520, 100, 64, 64);
 
 		packsScroll = new JScrollPane();
 		packsScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -111,10 +106,10 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		packsScroll.setOpaque(false);
 		// packsScroll.setViewportView(packs);
 		packsScroll.getVerticalScrollBar().setUnitIncrement(19);
-		//add(packsScroll);
-
+		// add(packsScroll);
 
 		packInfo = new JEditorPane();
+		packInfo.setHighlighter(null);
 		packInfo.setEditable(false);
 		packInfo.setContentType("text/html");
 		packInfo.addHyperlinkListener(new HyperlinkListener()
@@ -151,33 +146,6 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 
 		add(modPackInfoScroller);
 		add(logo);
-
-		version = new JComboBox(new String[] {});
-		version.setBounds(200, 5, 130, 25);
-		version.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent arg0)
-			{
-				Settings.getSettings().setPackVer((String.valueOf(version.getSelectedItem()).equalsIgnoreCase("recommended") ? "Recommended Version" : String.valueOf(version.getSelectedItem())));
-				Settings.getSettings().save();
-			}
-		});
-		version.setToolTipText("Modpack Versions");
-		//add(version);
-
-		privatePack = new JButton("Private Packs");
-		privatePack.setBounds(700, 5, 120, 25);
-		privatePack.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				ConnectionProblemDialog ap = new ConnectionProblemDialog();
-				ap.setVisible(true);
-			}
-		});
-		//add(privatePack);
 	}
 
 	@Override
@@ -188,7 +156,7 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 	/*
 	 * GUI Code to add a modpack to the selection
 	 */
-	public static void addPack(ModPack pack)
+	public void addPack(ModPack pack)
 	{
 		if (!modPacksAdded)
 		{
@@ -266,7 +234,7 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		updatePacks();
 	}
 
-	public static void sortPacks()
+	public void sortPacks()
 	{
 		packPanels.clear();
 		packs.removeAll();
@@ -287,7 +255,7 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		updatePacks();
 	}
 
-	private static void updatePacks()
+	private void updatePacks()
 	{
 		for (int i = 0; i < packPanels.size(); i++)
 		{
@@ -330,28 +298,18 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 				packPanels.get(i).setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 			}
 		}
+		if (packPanels.size() == 0)
+		{
+			remove(modPackInfoScroller);
+			offline.setBounds(350, 0, 500, 310);
+			add(offline);
+		}
 	}
 
 	public static int getSelectedModIndex()
 	{
 		return modPacksAdded ? getIndex() : -1;
 	}
-
-	/*public static void updateFilter()
-	{
-		String filterTextColor = LauncherStyle.getColorAsString(LauncherStyle.getCurrentStyle().filterTextColor);
-		String filterInnerTextColor = LauncherStyle.getColorAsString(LauncherStyle.getCurrentStyle().filterInnerTextColor);
-		String typeLblText = "<html><body>";
-		typeLblText += "<strong><font color=rgb\"(" + filterTextColor + ")\">Filter: </strong></font>";
-		typeLblText += "<font color=rgb\"(" + filterInnerTextColor + ")\">" + origin + "</font>";
-		typeLblText += "<font color=rgb\"(" + filterTextColor + ")\"> / </font>";
-		typeLblText += "<font color=rgb\"(" + filterInnerTextColor + ")\">" + mcVersion + "</font>";
-		typeLblText += "</body></html>";
-
-		typeLbl.setText(typeLblText);
-		sortPacks();
-		LaunchFrame.getInstance().updateFooter();
-	}*/
 
 	private static int getIndex()
 	{

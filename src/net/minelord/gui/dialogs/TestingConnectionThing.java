@@ -17,8 +17,8 @@ public class TestingConnectionThing extends JDialog
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public static boolean offline=true;
-	
+	public static boolean offline = true;
+
 	public TestingConnectionThing()
 	{
 		super(LaunchFrame.getInstance(), true);
@@ -31,10 +31,8 @@ public class TestingConnectionThing extends JDialog
 		loadingGIF.setBounds(2, 2, 66, 66);
 		add(loadingGIF);
 		setLocationRelativeTo(null);
-		Thread suppressor=new Thread(new Runnable()
+		Thread suppressor = new Thread(new Runnable()
 		{
-			
-			@Override
 			public void run()
 			{
 				testConnection();
@@ -43,22 +41,19 @@ public class TestingConnectionThing extends JDialog
 		suppressor.start();
 		setVisible(true);
 	}
-	
+
 	public void testConnection()
 	{
-		System.out.println("starting");
-		Thread connect=new Thread(new Runnable()
+		Thread connect = new Thread(new Runnable()
 		{
-			@Override
 			public void run()
 			{
-				URL minelord;
 				try
 				{
-					minelord = new URL("http://minelord.com");
-					HttpURLConnection connection=(HttpURLConnection)minelord.openConnection();
-					if(connection.getResponseCode()==200)
-						offline=false;
+					URL minelord = new URL("http://minelord.com");
+					HttpURLConnection connection = (HttpURLConnection) minelord.openConnection();
+					if (connection.getResponseCode() == 200)
+						offline = false;
 				}
 				catch (Exception e)
 				{
@@ -76,8 +71,7 @@ public class TestingConnectionThing extends JDialog
 			e1.printStackTrace();
 		}
 		connect.interrupt();
-		System.out.println("done");
 		setVisible(false);
-		
+
 	}
 }

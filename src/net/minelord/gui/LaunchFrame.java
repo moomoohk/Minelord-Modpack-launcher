@@ -263,7 +263,6 @@ public class LaunchFrame extends JFrame
 				// TexturePack.loadAll();
 
 				UpdateChecker updateChecker = new UpdateChecker(buildNumber);
-
 				if (updateChecker.shouldUpdate())
 				{
 					LauncherUpdateDialog p = new LauncherUpdateDialog(updateChecker);
