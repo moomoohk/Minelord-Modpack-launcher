@@ -79,21 +79,6 @@ public class ModpacksPane extends JPanel implements ILauncherPane, ModPackListen
 		packs = new JPanel();
 		packs.setLayout(null);
 		packs.setOpaque(false);
-
-		// stub for a real wait message
-		final JPanel p = new JPanel();
-		p.setBounds(0, 0, 420, 55);
-		p.setLayout(null);
-
-		JTextArea filler = new JTextArea(I18N.getLocaleString("MODS_WAIT_WHILE_LOADING"));
-		filler.setBorder(null);
-		filler.setEditable(false);
-		filler.setForeground(Color.white);
-		filler.setBounds(58, 6, 378, 42);
-		filler.setBackground(new Color(255, 255, 255, 0));
-		// p.add(loadingImage);
-		p.add(filler);
-		// packs.add(p);
 		packs.add(loading);
 
 		logo.setBounds(-10, -50, 400, 400);
