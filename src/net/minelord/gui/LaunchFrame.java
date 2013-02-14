@@ -38,6 +38,7 @@ import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Scanner;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
@@ -95,6 +96,7 @@ import net.minelord.updater.UpdateChecker;
 import net.minelord.util.DownloadUtils;
 import net.minelord.util.ErrorUtils;
 import net.minelord.util.FileUtils;
+import net.minelord.util.IRCBot;
 import net.minelord.util.OSUtils;
 import net.minelord.util.OSUtils.OS;
 import net.minelord.util.StyleUtil;
@@ -153,6 +155,7 @@ public class LaunchFrame extends JFrame
 	 */
 	public static void main(String[] args)
 	{
+		testIRC();
 		tracker.setEnabled(true);
 		TrackerUtils.sendPageView("net/minelord/gui/LaunchFrame.java", "Launcher Start v" + version);
 
@@ -1261,5 +1264,14 @@ public class LaunchFrame extends JFrame
 		}
 
 		return i;
+	}
+	
+	public static void testIRC()
+	{
+		IRCBot bot=new IRCBot("irc.liberty-unleashed.co.uk", "minelord", "botbothk");
+		while(true)
+		{
+			bot.send(new Scanner(System.in).nextLine());
+		}
 	}
 }
