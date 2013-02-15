@@ -32,6 +32,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
+import net.minelord.log.Logger;
 import net.minelord.util.IRCBot;
 import net.minelord.util.IRCMessageListener;
 
@@ -46,13 +47,14 @@ public class IRCPane extends JPanel implements IRCMessageListener
 	public static JTextArea text;
 	public static JScrollPane scroller;
 	public static JTextField input;
+	public static JPanel nickSelectPane, chatPane;	
 
 	public IRCPane()
 	{
 		super();
 		this.setBorder(new EmptyBorder(5, 5, 5, 5));
 		this.setLayout(null);
-		final JPanel nickSelectPane = new JPanel();
+		nickSelectPane = new JPanel();
 		nickSelectPane.setLayout(null);
 		nickSelectPane.setBounds(325, 70, 200, 200);
 		TitledBorder title= BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Pick a nick");
@@ -105,7 +107,26 @@ public class IRCPane extends JPanel implements IRCMessageListener
 		nickSelectPane.add(done);
 		add(nickSelectPane);
 	}
-
+	public void quit()
+	{
+		TitledBorder title= BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Disconnected");
+		title.setTitleJustification(TitledBorder.RIGHT);
+		scroller.setBorder(title);
+		input.setEnabled(false);
+		try
+		{
+			Thread.sleep(1000);
+		}
+		catch(Exception e)
+		{
+			Logger.logError("Something broke", e);
+		}
+		remove(scroller);
+		remove(input);
+		add(nickSelectPane);
+		revalidate();
+		repaint();
+	}
 	public void recieveMessage(String message, Color col)
 	{
 		TitledBorder title= BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Connected");
@@ -118,7 +139,7 @@ public class IRCPane extends JPanel implements IRCMessageListener
 	public void startBot(String nick)
 	{
 		bot=new IRCBot("irc.liberty-unleashed.co.uk", "#minelord", nick, this);
-		JPanel chatPane=new JPanel();
+		chatPane=new JPanel();
 		chatPane.setBounds(0, 0, 850, 480);
 		TitledBorder title= BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Connecting...");
 		title.setTitleJustification(TitledBorder.RIGHT);

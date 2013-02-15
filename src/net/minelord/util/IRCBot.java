@@ -177,14 +177,20 @@ public class IRCBot implements IRCEventListener
 						if (message.toLowerCase().contains("/me"))
 							this.channel.action(message.substring(i));
 						if (message.toLowerCase().contains("/quit"))
+						{
 							this.conman.quit(message.substring(i));
+							this.messageListener.quit();
+						}
 						break;
 					}
 				}
 			else
 			{
 				if (message.toLowerCase().contains("/quit"))
+				{
 					this.conman.quit();
+					this.messageListener.quit();
+				}
 			}
 		}
 		else
@@ -208,7 +214,7 @@ public class IRCBot implements IRCEventListener
 
 	public String getNick()
 	{
-		return this.p.getActualNick();
+		return this.p.getFirstNick();
 	}
 
 	public String getNetwork()
