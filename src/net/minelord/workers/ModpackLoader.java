@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 
-import net.minelord.data.Map;
 import net.minelord.data.ModPack;
 import net.minelord.data.TexturePack;
 import net.minelord.gui.panes.ModpacksPane;
@@ -132,7 +131,6 @@ public class ModpackLoader extends Thread
 		if (!ModpacksPane.loaded)
 		{
 			ModpacksPane.loaded = true;
-			Map.loadAll();
 			TexturePack.loadAll();
 		}
 	}

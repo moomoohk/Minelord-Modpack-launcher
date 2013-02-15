@@ -42,7 +42,6 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
 import net.minelord.data.LauncherStyle;
-import net.minelord.data.Map;
 import net.minelord.data.ModPack;
 import net.minelord.data.TexturePack;
 import net.minelord.data.events.TexturePackListener;

@@ -58,7 +58,6 @@ import javax.swing.event.ChangeListener;
 
 import net.minelord.data.LauncherStyle;
 import net.minelord.data.LoginResponse;
-import net.minelord.data.Map;
 import net.minelord.data.ModPack;
 import net.minelord.data.Settings;
 import net.minelord.data.TexturePack;
@@ -72,7 +71,7 @@ import net.minelord.gui.dialogs.ProfileAdderDialog;
 import net.minelord.gui.dialogs.ProfileEditorDialog;
 import net.minelord.gui.dialogs.TestingConnectionThing;
 import net.minelord.gui.panes.ILauncherPane;
-import net.minelord.gui.panes.MapsPane;
+import net.minelord.gui.panes.IRCPane;
 import net.minelord.gui.panes.ModpacksPane;
 import net.minelord.gui.panes.NewsPane;
 import net.minelord.gui.panes.OptionsPane;
@@ -84,7 +83,6 @@ import net.minelord.log.LogLevel;
 import net.minelord.log.Logger;
 import net.minelord.log.StreamLogger;
 import net.minelord.mclauncher.MinecraftLauncher;
-import net.minelord.tools.MapManager;
 import net.minelord.tools.MinecraftVersionDetector;
 import net.minelord.tools.ModManager;
 import net.minelord.tools.ProcessMonitor;
@@ -129,7 +127,7 @@ public class LaunchFrame extends JFrame
 	protected static UserManager userManager;
 
 	public static ModpacksPane modPacksPane;
-	public MapsPane mapsPane;
+	public IRCPane mapsPane;
 	public TexturepackPane tpPane;
 	public OptionsPane optionsPane;
 
@@ -155,7 +153,6 @@ public class LaunchFrame extends JFrame
 	 */
 	public static void main(String[] args)
 	{
-		testIRC();
 		tracker.setEnabled(true);
 		TrackerUtils.sendPageView("net/minelord/gui/LaunchFrame.java", "Launcher Start v" + version);
 
@@ -259,9 +256,6 @@ public class LaunchFrame extends JFrame
 
 				ModPack.loadXml(getXmls());
 
-				Map.addListener(frame.mapsPane);
-				// Map.loadAll();
-
 				TexturePack.addListener(frame.tpPane);
 				// TexturePack.loadAll();
 
@@ -273,6 +267,7 @@ public class LaunchFrame extends JFrame
 				}
 			}
 		});
+		//testIRC();
 	}
 
 	/**
@@ -475,19 +470,6 @@ public class LaunchFrame extends JFrame
 		mapInstall.setBounds(650, 20, 160, 30);
 		mapInstall.setText(I18N.getLocaleString("INSTALL_MAP"));
 		mapInstall.setVisible(false);
-		mapInstall.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent arg0)
-			{
-				if (MapsPane.mapPanels.size() > 0 && getSelectedMapIndex() >= 0)
-				{
-					MapManager man = new MapManager(new JFrame(), true);
-					man.setVisible(true);
-					MapManager.cleanUp();
-				}
-			}
-		});
 
 		mapInstallLocation = new JComboBox();
 		mapInstallLocation.setBounds(480, 20, 160, 30);
@@ -497,23 +479,6 @@ public class LaunchFrame extends JFrame
 		serverMap.setBounds(480, 20, 330, 30);
 		serverMap.setText(I18N.getLocaleString("DOWNLOAD_MAP_SERVER"));
 		serverMap.setVisible(false);
-		serverMap.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent event)
-			{
-				if (MapsPane.mapPanels.size() > 0 && getSelectedMapIndex() >= 0)
-				{
-					try
-					{
-						OSUtils.browse(DownloadUtils.getMinelordLink(Map.getMap(LaunchFrame.getSelectedMapIndex()).getUrl()));
-					}
-					catch (NoSuchAlgorithmException e)
-					{
-					}
-				}
-			}
-		});
 
 		tpInstall.setBounds(650, 20, 160, 30);
 		tpInstall.setText(I18N.getLocaleString("INSTALL_TEXTUREPACK"));
@@ -554,7 +519,7 @@ public class LaunchFrame extends JFrame
 
 		newsPane = new NewsPane();
 		modPacksPane = new ModpacksPane();
-		mapsPane = new MapsPane();
+		mapsPane = new IRCPane();
 		tpPane = new TexturepackPane();
 		optionsPane = new OptionsPane(Settings.getSettings());
 
@@ -998,14 +963,6 @@ public class LaunchFrame extends JFrame
 	}
 
 	/**
-	 * @return - Outputs selected map index
-	 */
-	public static int getSelectedMapIndex()
-	{
-		return MapsPane.getSelectedMapIndex();
-	}
-
-	/**
 	 * @return - Outputs selected texturepack index
 	 */
 	public static int getSelectedTexturePackIndex()
@@ -1122,14 +1079,9 @@ public class LaunchFrame extends JFrame
 	 */
 	public void updateFooter()
 	{
-		boolean result;
 		switch (currentPane)
 		{
 		case MAPS:
-			result = MapsPane.type.equals("Server");
-			mapInstall.setVisible(!result);
-			mapInstallLocation.setVisible(!result);
-			serverMap.setVisible(result);
 			disableMainButtons();
 			disableTextureButtons();
 			break;
@@ -1189,7 +1141,6 @@ public class LaunchFrame extends JFrame
 		writeUsers((String) users.getSelectedItem());
 		optionsPane.updateLocale();
 		modPacksPane.updateLocale();
-		mapsPane.updateLocale();
 		tpPane.updateLocale();
 	}
 
