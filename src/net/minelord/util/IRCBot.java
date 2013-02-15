@@ -1,10 +1,9 @@
 package net.minelord.util;
 
-import java.awt.Color;
-
 import jerklib.Channel;
 import jerklib.ConnectionManager;
 import jerklib.Profile;
+import jerklib.Session;
 import jerklib.events.IRCEvent;
 import jerklib.events.IRCEvent.Type;
 import jerklib.events.JoinCompleteEvent;
@@ -18,6 +17,7 @@ public class IRCBot implements IRCEventListener
 	private ConnectionManager conman;
 	private Profile p;
 	private IRCMessageListener messageListener;
+	private Session s;
 
 	public IRCBot(String network, String room, String nick)
 	{
@@ -34,6 +34,7 @@ public class IRCBot implements IRCEventListener
 		this.conman = new ConnectionManager(new Profile(nick));
 		this.conman.requestConnection(network).addIRCEventListener(this);
 		this.messageListener = messageListener;
+		this.s=null;
 	}
 
 	public void receiveEvent(IRCEvent e)
@@ -42,20 +43,27 @@ public class IRCBot implements IRCEventListener
 		if (e.getType() == Type.CONNECT_COMPLETE)
 		{
 			e.getSession().join(this.room);
+			this.s=e.getSession();
 		}
 		else
 		{
-			if (e.getType() == Type.NICK_IN_USE||e.getType() == Type.NOTICE || e.getType() == Type.SERVER_INFORMATION || (e.getType() == Type.DEFAULT && !e.getRawEventData().contains("KICK")) || e.getType() == Type.SERVER_VERSION_EVENT || e.getType() == Type.MOTD || e.getType() == Type.NICK_LIST_EVENT || e.getType() == Type.TOPIC)
+			if (e.getType()==Type.AWAY_EVENT||e.getType() == Type.NICK_IN_USE||e.getType() == Type.NOTICE || e.getType() == Type.SERVER_INFORMATION || (e.getType() == Type.DEFAULT && !e.getRawEventData().contains("KICK")) || e.getType() == Type.SERVER_VERSION_EVENT || e.getType() == Type.MOTD || e.getType() == Type.NICK_LIST_EVENT || e.getType() == Type.TOPIC)
 			{
 				Logger.logInfo(e.getRawEventData());
 				return;
 			}
 			if (e.getType() == Type.MODE_EVENT && e.getRawEventData().contains("+nt"))
 				return;
+			if(e.getType()==Type.TOPIC)
+			{
+				this.messageListener.updateTopic();
+				return;
+			}
 			if (e.getType() == Type.JOIN_COMPLETE)
 			{
 				JoinCompleteEvent jce = (JoinCompleteEvent) e;
 				this.channel = jce.getChannel();
+				this.messageListener.connected();
 				return;
 			}
 			if (e.getType() == Type.ERROR)
@@ -72,19 +80,19 @@ public class IRCBot implements IRCEventListener
 				if (e.getType() == Type.CHANNEL_MESSAGE)
 					message = sender + ": " + raw.substring(raw.indexOf(this.channel.getName()) + this.channel.getName().length() + 2);
 				if (e.getType() == Type.NICK_CHANGE)
-					message = sender + " changed their nick to " + raw.substring(raw.indexOf("NICK") + 5);
+					message = "*"+sender + " changed their nick to " + raw.substring(raw.indexOf("NICK") + 5);
 				if (e.getType() == Type.CTCP_EVENT)
 					message = "*" + sender + raw.substring(raw.indexOf("ACTION") + 6);
 				if (e.getType() == Type.JOIN)
-					message = sender + " joined the room";
+					message = "*"+sender + " joined the room";
 				if (e.getType() == Type.QUIT)
-					message = sender + " quit";
+					message = "*"+sender + " quit";
 				if (e.getType() == Type.PART)
-					message = sender + " parted";
+					message = "*"+sender + " parted";
 				if (e.getType() == Type.DEFAULT && raw.contains("KICK"))
 				{
 					String kick = raw.substring(raw.indexOf("KICK")), reason = kick.substring(kick.indexOf(":") + 1);
-					message = kick.substring(6 + this.room.length(), kick.indexOf(":") - 1) + " was kicked by " + sender;
+					message = "*"+kick.substring(6 + this.room.length(), kick.indexOf(":") - 1) + " was kicked by " + sender;
 					if (reason.length() > 0)
 						message += " (" + reason + ")";
 				}
@@ -113,6 +121,7 @@ public class IRCBot implements IRCEventListener
 							message = modeChanged.equals("you") ? "You were granted voice by " + sender : modeChanged + " was granted voice by " + sender;
 						if (mode.equals("-v"))
 							message = modeChanged.equals("you") ? "You had your voice removed by " + sender : modeChanged + " had their voice removed by " + sender;
+						message="*"+message;
 					}
 					catch (Exception ex)
 					{
@@ -127,9 +136,7 @@ public class IRCBot implements IRCEventListener
 				 * System.out.println(message); // part
 				 */
 				if (messageListener != null)
-				{
-					messageListener.recieveMessage(message, Color.black);
-				}
+					messageListener.receiveMessage(message);
 				/*
 				 * else if (containsNick(message)) System.err.println(message);
 				 * else System.out.println(message);
@@ -154,6 +161,8 @@ public class IRCBot implements IRCEventListener
 						return getNick()+""+message.substring(i);
 					if (message.toLowerCase().contains("/quit"))
 						return "Quitting...";
+					if(message.toLowerCase().contains("/join"))
+						return "Switching...";
 					break;
 				}
 			}
@@ -167,6 +176,7 @@ public class IRCBot implements IRCEventListener
 
 	public void send(String message)
 	{
+		message=message.trim();
 		if (message.charAt(0) == '/')
 		{
 			if (message.contains(" "))
@@ -174,12 +184,23 @@ public class IRCBot implements IRCEventListener
 				{
 					if (message.charAt(i) == ' ')
 					{
+						if(message.toLowerCase().contains("/away"))
+							this.s.setAway(message.substring(i));
 						if (message.toLowerCase().contains("/me"))
 							this.channel.action(message.substring(i));
 						if (message.toLowerCase().contains("/quit"))
 						{
 							this.conman.quit(message.substring(i));
+							this.messageListener.disconnect();
 							this.messageListener.quit();
+						}
+						if(message.toLowerCase().contains("/join"))
+						{
+							this.messageListener.disconnect();
+							this.conman.quit();
+							this.s.join(message.substring(i).trim());
+							this.room=message.substring(i);
+							this.messageListener.connect();
 						}
 						break;
 					}
@@ -191,6 +212,10 @@ public class IRCBot implements IRCEventListener
 					this.conman.quit();
 					this.messageListener.quit();
 				}
+				if(message.toLowerCase().contains("/back"))
+					this.s.unsetAway();
+				if(message.toLowerCase().contains("/away"))
+					this.s.setAway("");
 			}
 		}
 		else
@@ -214,11 +239,19 @@ public class IRCBot implements IRCEventListener
 
 	public String getNick()
 	{
-		return this.p.getFirstNick();
+		return this.s.getNick();
 	}
 
 	public String getNetwork()
 	{
 		return this.network;
+	}
+	public String getTopic()
+	{
+		return this.channel.getTopic();
+	}
+	public String getTopicSetter()
+	{
+		return this.channel.getTopicSetter();
 	}
 }
