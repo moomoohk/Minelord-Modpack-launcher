@@ -249,6 +249,7 @@ public class LaunchFrame extends JFrame
 					public void uncaughtException(Thread t, Throwable e)
 					{
 						Logger.logError("Unhandled exception in " + t.toString(), e);
+						e.printStackTrace();
 					}
 				});
 

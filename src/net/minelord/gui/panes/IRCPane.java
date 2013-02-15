@@ -21,20 +21,29 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JEditorPane;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
 
 import net.minelord.log.Logger;
 import net.minelord.util.IRCBot;
 import net.minelord.util.IRCMessageListener;
+import net.minelord.util.OSUtils;
 
 public class IRCPane extends JPanel implements IRCMessageListener
 {
@@ -44,10 +53,14 @@ public class IRCPane extends JPanel implements IRCMessageListener
 	private static final long serialVersionUID = 1L;
 	public static IRCBot bot;
 	public static String nick;
-	public static JTextArea text;
+	public static JEditorPane text;
 	public static JScrollPane scroller;
 	public static JTextField input;
 	public static JPanel nickSelectPane, chatPane;	
+	public HTMLDocument doc;
+	public static ArrayList<String> IRCLog;
+	public static HTMLEditorKit kit;
+	public static JLabel topic;
 
 	public IRCPane()
 	{
@@ -102,16 +115,41 @@ public class IRCPane extends JPanel implements IRCMessageListener
 				startBot(nickSelect.getText());
 			}
 		});
+
 		done.setEnabled(false);
 		nickSelectPane.add(nickSelect);
 		nickSelectPane.add(done);
 		add(nickSelectPane);
+	}
+	public void disconnect()
+	{
+		TitledBorder title= BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Disconnecting...");
+		title.setTitleJustification(TitledBorder.RIGHT);
+		scroller.setBorder(title);
+		input.setText("");
+		input.setEnabled(false);
+		try
+		{
+			Thread.sleep(1000);
+		}
+		catch(Exception e)
+		{
+			Logger.logError("Something broke", e);
+		}
+	}
+	public void connect()
+	{
+		text.setText("");
+		TitledBorder title= BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Connecting...");
+		title.setTitleJustification(TitledBorder.RIGHT);
+		scroller.setBorder(title);
 	}
 	public void quit()
 	{
 		TitledBorder title= BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Disconnected");
 		title.setTitleJustification(TitledBorder.RIGHT);
 		scroller.setBorder(title);
+		input.setText("");
 		input.setEnabled(false);
 		try
 		{
@@ -127,34 +165,73 @@ public class IRCPane extends JPanel implements IRCMessageListener
 		revalidate();
 		repaint();
 	}
-	public void recieveMessage(String message, Color col)
+	public void updateTopic()
+	{
+		topic.setText(bot.getTopic());
+	}
+	public void connected()
 	{
 		TitledBorder title= BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Connected");
 		title.setTitleJustification(TitledBorder.RIGHT);
+		if(bot.getTopic().trim().length()>0)
+		{
+			topic=new JLabel(bot.getTopic());
+			scroller.setBounds(20, 45, 810, 225);
+			TitledBorder title2= BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Topic set by "+bot.getTopicSetter());
+			title2.setTitleJustification(TitledBorder.LEFT);
+			topic.setBorder(title2);
+			topic.setBounds(20, 5, 810, 40);
+			add(topic);
+		}
 		scroller.setBorder(title);
 		input.setEnabled(true);
-		text.setText(text.getText()+"\n"+message);
+		repaint();
+	}
+	public void receiveMessage(String message)
+	{
+		String color="gray";
+		if(message.charAt(0)=='*')
+			color="purple";
+		if(bot.containsNick(message))
+			color="red";
+		IRCLog.add("<font color=\""+color+"\">"+message+"</font><br>");
+		refreshLogs();
 	}
 
 	public void startBot(String nick)
 	{
-		bot=new IRCBot("irc.liberty-unleashed.co.uk", "#minelord", nick, this);
-		chatPane=new JPanel();
-		chatPane.setBounds(0, 0, 850, 480);
-		TitledBorder title= BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Connecting...");
-		title.setTitleJustification(TitledBorder.RIGHT);
-		text=new JTextArea();
+		IRCLog=new ArrayList<String>();
+		text = new JEditorPane("text/html", "<HTML>");
+		text.setEditable(false);
+		kit = new HTMLEditorKit();
+		text.setEditorKit(kit);
+
+		bot=new IRCBot("irc.liberty-unleashed.co.uk", "#Minelord", nick, this);
 		scroller=new JScrollPane(text);
-		text.setBackground(Color.gray);
+		scroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+		scroller.setForeground(Color.gray.darker());
 		text.setForeground(Color.black);
 		text.setEditable(false);
-		scroller.setBorder(title);
+		connect();
 		scroller.setBounds(20, 20, 810, 250);
 		add(scroller);
 		input=new JTextField();
 		input.setBounds(20, 270, 810, 30);
 		input.setBackground(Color.gray);
 		input.setEnabled(false);
+		text.addHyperlinkListener(new HyperlinkListener()
+		{
+			@Override
+			public void hyperlinkUpdate(HyperlinkEvent event)
+			{
+				if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED)
+				{
+					OSUtils.browse(event.getURL().toString());
+				}
+			}
+		});
+		scroller.setViewportView(text);
 		add(input);
 		input.addKeyListener(new KeyListener()
 		{
@@ -170,12 +247,20 @@ public class IRCPane extends JPanel implements IRCMessageListener
 				if(arg0.getKeyCode()==10)
 				{
 					bot.send(input.getText());
-					if(input.getText().charAt(0)=='/')
-						text.setText(text.getText()+"\n"+bot.parseCommand(input.getText()));
+					if(input.getText().length()>0&&input.getText().charAt(0)=='/')
+					{
+						IRCLog.add("<font color=\"purple\">"+bot.parseCommand(input.getText())+"</font><br>");
+						refreshLogs();
+					}
 					else
-						text.setText(text.getText()+"\n"+bot.getNick()+": "+input.getText());
+					{
+						IRCLog.add("<font color=\"gray\">"+bot.getNick()+": "+input.getText()+"</font><br>");
+						refreshLogs();
+					}
 					input.setText("");
 				}
+				if(arg0.getKeyCode()==27)
+					input.setText("");
 			}
 
 			@Override
@@ -185,6 +270,36 @@ public class IRCPane extends JPanel implements IRCMessageListener
 
 			}
 		});
-		//	add(chatPane);
+	}
+	synchronized private void refreshLogs()
+	{
+		doc = new HTMLDocument();
+		text.setDocument(doc);
+		StringBuilder logHTML = new StringBuilder();
+		for (String message : IRCLog)
+		{
+			logHTML.append(message);
+		}
+		addHTML(logHTML.toString());
+	}
+
+	private void addHTML(String html)
+	{
+		synchronized (kit)
+		{
+			try
+			{
+				kit.insertHTML(doc, doc.getLength(), html, 0, 0, null);
+			}
+			catch (BadLocationException ignored)
+			{
+				Logger.logError(ignored.getMessage(), ignored);
+			}
+			catch (IOException ignored)
+			{
+				Logger.logError(ignored.getMessage(), ignored);
+			}
+			text.setCaretPosition(text.getDocument().getLength());
+		}
 	}
 }

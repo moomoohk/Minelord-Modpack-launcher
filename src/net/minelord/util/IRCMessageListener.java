@@ -1,11 +1,14 @@
 
 package net.minelord.util;
 
-import java.awt.Color;
 
 public interface IRCMessageListener
 {
-	public void recieveMessage(String message, Color col);
+	public void receiveMessage(String message);
 	public void quit();
+	public void disconnect();
+	public void connect();
+	public void connected();
+	public void updateTopic();
 }
 
