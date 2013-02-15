@@ -44,6 +44,8 @@ public class IRCPane extends JPanel implements IRCMessageListener
 	public static IRCBot bot;
 	public static String nick;
 	public static JTextArea text;
+	public static JScrollPane scroller;
+	public static JTextField input;
 
 	public IRCPane()
 	{
@@ -106,29 +108,33 @@ public class IRCPane extends JPanel implements IRCMessageListener
 
 	public void recieveMessage(String message, Color col)
 	{
-		System.out.println(message);
+		TitledBorder title= BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Connected");
+		title.setTitleJustification(TitledBorder.RIGHT);
+		scroller.setBorder(title);
+		input.setEnabled(true);
 		text.setText(text.getText()+"\n"+message);
 	}
 
 	public void startBot(String nick)
 	{
+		bot=new IRCBot("irc.liberty-unleashed.co.uk", "#minelord", nick, this);
 		JPanel chatPane=new JPanel();
 		chatPane.setBounds(0, 0, 850, 480);
-		TitledBorder title= BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Chat");
+		TitledBorder title= BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Connecting...");
 		title.setTitleJustification(TitledBorder.RIGHT);
 		text=new JTextArea();
-		JScrollPane scroller=new JScrollPane(text);
+		scroller=new JScrollPane(text);
 		text.setBackground(Color.gray);
 		text.setForeground(Color.black);
 		text.setEditable(false);
 		scroller.setBorder(title);
 		scroller.setBounds(20, 20, 810, 250);
 		add(scroller);
-		final JTextField input=new JTextField();
+		input=new JTextField();
 		input.setBounds(20, 270, 810, 30);
 		input.setBackground(Color.gray);
+		input.setEnabled(false);
 		add(input);
-		bot=new IRCBot("irc.liberty-unleashed.co.uk", "#minelord", nick, this);
 		input.addKeyListener(new KeyListener()
 		{
 
@@ -143,7 +149,10 @@ public class IRCPane extends JPanel implements IRCMessageListener
 				if(arg0.getKeyCode()==10)
 				{
 					bot.send(input.getText());
-					text.setText(text.getText()+"\n"+bot.getNick()+": "+input.getText());
+					if(input.getText().charAt(0)=='/')
+						text.setText(text.getText()+"\n"+bot.parseCommand(input.getText()));
+					else
+						text.setText(text.getText()+"\n"+bot.getNick()+": "+input.getText());
 					input.setText("");
 				}
 			}

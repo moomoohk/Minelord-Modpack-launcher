@@ -177,22 +177,7 @@ public class LauncherConsole extends JFrame implements ILogListener
 			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
-				if (Desktop.isDesktopSupported())
-				{
-					Desktop desktop = Desktop.getDesktop();
-					try
-					{
-						desktop.browse(new URI("http://liberty-unleashed.co.uk:9090/?channels=Minelord-Pack"));
-					}
-					catch (Exception exc)
-					{
-						Logger.logError("Could not open url: " + exc.getMessage());
-					}
-				}
-				else
-				{
-					Logger.logWarn("Could not open url, not supported");
-				}
+			
 			}
 		});
 		panel.add(ircButton);
