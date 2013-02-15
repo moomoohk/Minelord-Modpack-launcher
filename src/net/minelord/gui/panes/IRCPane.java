@@ -16,6 +16,7 @@
  */
 package net.minelord.gui.panes;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -24,6 +25,7 @@ import java.awt.event.KeyListener;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
@@ -41,6 +43,7 @@ public class IRCPane extends JPanel implements IRCMessageListener
 	private static final long serialVersionUID = 1L;
 	public static IRCBot bot;
 	public static String nick;
+	public static JTextArea text;
 
 	public IRCPane()
 	{
@@ -80,6 +83,8 @@ public class IRCPane extends JPanel implements IRCMessageListener
 			@Override
 			public void keyPressed(KeyEvent arg0)
 			{
+				if(arg0.getKeyCode()==10)
+					done.doClick();
 			}
 		});
 		nickSelect.setBounds(50, 65, 100, 30);
@@ -89,6 +94,7 @@ public class IRCPane extends JPanel implements IRCMessageListener
 			public void actionPerformed(ActionEvent arg0)
 			{
 				remove(nickSelectPane);
+				repaint();
 				startBot(nickSelect.getText());
 			}
 		});
@@ -98,19 +104,57 @@ public class IRCPane extends JPanel implements IRCMessageListener
 		add(nickSelectPane);
 	}
 
-	public void recieveMessage(String Event)
+	public void recieveMessage(String message, Color col)
 	{
-		// TODO Auto-generated method stub
-
+		System.out.println(message);
+		text.setText(text.getText()+"\n"+message);
 	}
 
 	public void startBot(String nick)
 	{
-		JTextArea log=new JTextArea();
-		log.setBounds(30, 30, 170, 170);
-	//	log.setText("iasuhgiouhaiuhgiahsdoiuhgoiashdogiuhasoidhgoisahioghasiouhaoishosiuh");
-		log.setEditable(false);
-		add(log);
-		bot=new IRCBot("irc.liberty-unleashed.co.uk", "#minelord-modpack", nick);
+		JPanel chatPane=new JPanel();
+		chatPane.setBounds(0, 0, 850, 480);
+		TitledBorder title= BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Chat");
+		title.setTitleJustification(TitledBorder.RIGHT);
+		text=new JTextArea();
+		JScrollPane scroller=new JScrollPane(text);
+		text.setBackground(Color.gray);
+		text.setForeground(Color.black);
+		text.setEditable(false);
+		scroller.setBorder(title);
+		scroller.setBounds(20, 20, 810, 250);
+		add(scroller);
+		final JTextField input=new JTextField();
+		input.setBounds(20, 270, 810, 30);
+		input.setBackground(Color.gray);
+		add(input);
+		bot=new IRCBot("irc.liberty-unleashed.co.uk", "#minelord", nick, this);
+		input.addKeyListener(new KeyListener()
+		{
+
+			@Override
+			public void keyTyped(KeyEvent arg0)
+			{
+			}
+
+			@Override
+			public void keyReleased(KeyEvent arg0)
+			{
+				if(arg0.getKeyCode()==10)
+				{
+					bot.send(input.getText());
+					text.setText(text.getText()+"\n"+bot.getNick()+": "+input.getText());
+					input.setText("");
+				}
+			}
+
+			@Override
+			public void keyPressed(KeyEvent arg0)
+			{
+				// TODO Auto-generated method stub
+
+			}
+		});
+		//	add(chatPane);
 	}
 }

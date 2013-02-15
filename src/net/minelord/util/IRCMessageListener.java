@@ -1,8 +1,10 @@
 
 package net.minelord.util;
 
-public abstract interface IRCMessageListener
+import java.awt.Color;
+
+public interface IRCMessageListener
 {
-	public abstract void recieveMessage(String Event);
+	public void recieveMessage(String message, Color col);
 }
 

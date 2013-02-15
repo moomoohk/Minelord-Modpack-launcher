@@ -1,5 +1,7 @@
 package net.minelord.util;
 
+import java.awt.Color;
+
 import jerklib.Channel;
 import jerklib.ConnectionManager;
 import jerklib.Profile;
@@ -7,12 +9,14 @@ import jerklib.events.IRCEvent;
 import jerklib.events.IRCEvent.Type;
 import jerklib.events.JoinCompleteEvent;
 import jerklib.listeners.IRCEventListener;
+import net.minelord.log.Logger;
 
 public class IRCBot implements IRCEventListener
 {
 	private Channel channel;
 	private String network, room, nick;
 	private ConnectionManager conman;
+	private Profile p;
 	private IRCMessageListener messageListener;
 
 	public IRCBot(String network, String room, String nick)
@@ -21,16 +25,22 @@ public class IRCBot implements IRCEventListener
 	}
 	public IRCBot(String network, String room, String nick, IRCMessageListener messageListener)
 	{
-		this.conman = new ConnectionManager(new Profile(nick));
-		this.conman.requestConnection(network).addIRCEventListener(this);
 		this.channel = null;
 		this.nick = nick;
+		this.p=new Profile(nick);
 		this.network = network;
 		this.room = room.charAt(0) != '#' ? "#" + room : room;
+		this.conman = new ConnectionManager(new Profile(nick));
+		this.conman.requestConnection(network).addIRCEventListener(this);
 	}
 
 	public void receiveEvent(IRCEvent e)
 	{
+		Logger.logInfo(e.getType()+" : "+e.getRawEventData());
+		if(e.getType()==Type.NICK_IN_USE)
+		{
+			return;
+		}
 		if (e.getType() == Type.CONNECT_COMPLETE)
 		{
 			e.getSession().join(this.room);
@@ -39,7 +49,7 @@ public class IRCBot implements IRCEventListener
 		{
 			if (e.getType() == Type.NOTICE || e.getType() == Type.SERVER_INFORMATION || (e.getType() == Type.DEFAULT && !e.getRawEventData().contains("KICK")) || e.getType() == Type.SERVER_VERSION_EVENT || e.getType() == Type.MOTD || e.getType() == Type.NICK_LIST_EVENT || e.getType() == Type.TOPIC)
 			{
-				// Logger.logInfo(e.getRawEventData());
+				Logger.logInfo(e.getRawEventData());
 				return;
 			}
 			if(e.getType()==Type.MODE_EVENT&&e.getRawEventData().contains("+nt"))
@@ -52,7 +62,7 @@ public class IRCBot implements IRCEventListener
 			}
 			if (e.getType() == Type.ERROR)
 			{
-				ConnectionManager conman = new ConnectionManager(new Profile(nick));
+				ConnectionManager conman = new ConnectionManager(p);
 				conman.requestConnection(network).addIRCEventListener(this);
 				return;
 			}
@@ -120,12 +130,15 @@ public class IRCBot implements IRCEventListener
 					System.out.println(message);
 				// part*/
 				if(messageListener!=null)
-					messageListener.recieveMessage(message);
-				else
+				{
+					System.out.println("received "+message);
+					messageListener.recieveMessage(message, Color.black);
+				}
+				/*else
 					if (containsNick(message))
 						System.err.println(message);
 					else
-						System.out.println(message);
+						System.out.println(message);*/
 			}
 			catch (Exception ex)
 			{
@@ -144,7 +157,6 @@ public class IRCBot implements IRCEventListener
 				{
 					if(message.charAt(i)==' ')
 					{
-						System.out.println(message.length());
 						if (message.toLowerCase().contains("/me"))
 							this.channel.action(message.substring(i));
 						if(message.toLowerCase().contains("/quit"))
@@ -179,7 +191,7 @@ public class IRCBot implements IRCEventListener
 
 	public String getNick()
 	{
-		return this.nick;
+		return this.p.getActualNick();
 	}
 
 	public String getNetwork()

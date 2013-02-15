@@ -523,7 +523,7 @@ public class LaunchFrame extends JFrame
 		tpPane = new TexturepackPane();
 		optionsPane = new OptionsPane(Settings.getSettings());
 
-		getRootPane().setDefaultButton(launch);
+		//getRootPane().setDefaultButton(launch);
 		updateLocale();
 
 		tabbedPane.add(newsPane, 0);
