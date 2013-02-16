@@ -38,7 +38,6 @@ import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Scanner;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
@@ -94,7 +93,7 @@ import net.minelord.updater.UpdateChecker;
 import net.minelord.util.DownloadUtils;
 import net.minelord.util.ErrorUtils;
 import net.minelord.util.FileUtils;
-import net.minelord.util.IRCBot;
+import net.minelord.util.IRCAlertListener;
 import net.minelord.util.OSUtils;
 import net.minelord.util.OSUtils.OS;
 import net.minelord.util.StyleUtil;
@@ -102,7 +101,7 @@ import net.minelord.util.TrackerUtils;
 import net.minelord.workers.GameUpdateWorker;
 import net.minelord.workers.LoginWorker;
 
-public class LaunchFrame extends JFrame
+public class LaunchFrame extends JFrame implements IRCAlertListener
 {
 	/**
 	 * 
@@ -127,7 +126,7 @@ public class LaunchFrame extends JFrame
 	protected static UserManager userManager;
 
 	public static ModpacksPane modPacksPane;
-	public IRCPane mapsPane;
+	public IRCPane chatPane;
 	public TexturepackPane tpPane;
 	public OptionsPane optionsPane;
 
@@ -142,7 +141,7 @@ public class LaunchFrame extends JFrame
 
 	protected enum Panes
 	{
-		NEWS, OPTIONS, MODPACK, MAPS, TEXTURE
+		NEWS, OPTIONS, MODPACK, CHAT, TEXTURE
 	}
 
 	/**
@@ -520,7 +519,7 @@ public class LaunchFrame extends JFrame
 
 		newsPane = new NewsPane();
 		modPacksPane = new ModpacksPane();
-		mapsPane = new IRCPane();
+		chatPane = new IRCPane();
 		tpPane = new TexturepackPane();
 		optionsPane = new OptionsPane(Settings.getSettings());
 
@@ -530,7 +529,7 @@ public class LaunchFrame extends JFrame
 		tabbedPane.add(newsPane, 0);
 		tabbedPane.add(optionsPane, 1);
 		tabbedPane.add(modPacksPane, 2);
-		tabbedPane.add(mapsPane, 3);
+		tabbedPane.add(chatPane, 3);
 		tabbedPane.add(tpPane, 4);
 		setNewsIcon();
 		tabbedPane.setIconAt(1, new ImageIcon(this.getClass().getResource("/image/tabs/options.png")));
@@ -548,10 +547,13 @@ public class LaunchFrame extends JFrame
 				{
 					((ILauncherPane) tabbedPane.getSelectedComponent()).onVisible();
 					currentPane = Panes.values()[tabbedPane.getSelectedIndex()];
+					if(currentPane==Panes.CHAT)
+						tabbedPane.setIconAt(3, new ImageIcon(this.getClass().getResource("/image/tabs/chat.png")));
 					updateFooter();
 				}
 			}
 		});
+		IRCPane.bot.setIRCAlertListener(this);
 	}
 
 	public void setNewsIcon()
@@ -1082,7 +1084,7 @@ public class LaunchFrame extends JFrame
 	{
 		switch (currentPane)
 		{
-		case MAPS:
+		case CHAT:
 			disableMainButtons();
 			disableTextureButtons();
 			break;
@@ -1220,10 +1222,17 @@ public class LaunchFrame extends JFrame
 	
 	public static void testIRC()
 	{
-		IRCBot bot=new IRCBot("irc.liberty-unleashed.co.uk", "minelord", "botbothk");
+		/*IRCBot bot=new IRCBot("irc.liberty-unleashed.co.uk", "minelord", "botbothk");
 		while(true)
 		{
 			bot.send(new Scanner(System.in).nextLine());
-		}
+		}*/
+	}
+
+	@Override
+	public void alert()
+	{
+		if(currentPane!=Panes.CHAT)
+			tabbedPane.setIconAt(3, new ImageIcon(this.getClass().getResource("/image/tabs/chat_new.png")));
 	}
 }

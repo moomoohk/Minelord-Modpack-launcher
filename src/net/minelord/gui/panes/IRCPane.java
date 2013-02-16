@@ -45,18 +45,18 @@ import net.minelord.util.IRCBot;
 import net.minelord.util.IRCMessageListener;
 import net.minelord.util.OSUtils;
 
-public class IRCPane extends JPanel implements IRCMessageListener
+public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public static IRCBot bot;
+	public static IRCBot bot = new IRCBot();
 	public static String nick;
 	public static JEditorPane text;
 	public static JScrollPane scroller;
 	public static JTextField input;
-	public static JPanel nickSelectPane, chatPane;	
+	public static JPanel nickSelectPane, chatPane;
 	public HTMLDocument doc;
 	public static ArrayList<String> IRCLog;
 	public static HTMLEditorKit kit;
@@ -70,7 +70,7 @@ public class IRCPane extends JPanel implements IRCMessageListener
 		nickSelectPane = new JPanel();
 		nickSelectPane.setLayout(null);
 		nickSelectPane.setBounds(325, 70, 200, 200);
-		TitledBorder title= BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Pick a nick");
+		TitledBorder title = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Pick a nick");
 		title.setTitleJustification(TitledBorder.RIGHT);
 		nickSelectPane.setBorder(title);
 		final JTextField nickSelect = new JTextField();
@@ -100,7 +100,7 @@ public class IRCPane extends JPanel implements IRCMessageListener
 			@Override
 			public void keyPressed(KeyEvent arg0)
 			{
-				if(arg0.getKeyCode()==10)
+				if (arg0.getKeyCode() == 10)
 					done.doClick();
 			}
 		});
@@ -121,9 +121,10 @@ public class IRCPane extends JPanel implements IRCMessageListener
 		nickSelectPane.add(done);
 		add(nickSelectPane);
 	}
+
 	public void disconnect()
 	{
-		TitledBorder title= BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Disconnecting...");
+		TitledBorder title = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Disconnecting...");
 		title.setTitleJustification(TitledBorder.RIGHT);
 		scroller.setBorder(title);
 		input.setText("");
@@ -132,21 +133,23 @@ public class IRCPane extends JPanel implements IRCMessageListener
 		{
 			Thread.sleep(1000);
 		}
-		catch(Exception e)
+		catch (Exception e)
 		{
 			Logger.logError("Something broke", e);
 		}
 	}
+
 	public void connect()
 	{
 		text.setText("");
-		TitledBorder title= BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Connecting...");
+		TitledBorder title = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Connecting...");
 		title.setTitleJustification(TitledBorder.RIGHT);
 		scroller.setBorder(title);
 	}
+
 	public void quit()
 	{
-		TitledBorder title= BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Disconnected");
+		TitledBorder title = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Disconnected");
 		title.setTitleJustification(TitledBorder.RIGHT);
 		scroller.setBorder(title);
 		input.setText("");
@@ -155,29 +158,32 @@ public class IRCPane extends JPanel implements IRCMessageListener
 		{
 			Thread.sleep(1000);
 		}
-		catch(Exception e)
+		catch (Exception e)
 		{
 			Logger.logError("Something broke", e);
 		}
 		remove(scroller);
 		remove(input);
+		remove(topic);
 		add(nickSelectPane);
 		revalidate();
 		repaint();
 	}
+
 	public void updateTopic()
 	{
 		topic.setText(bot.getTopic());
 	}
+
 	public void connected()
 	{
-		TitledBorder title= BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Connected");
+		TitledBorder title = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Connected");
 		title.setTitleJustification(TitledBorder.RIGHT);
-		if(bot.getTopic().trim().length()>0)
+		if (bot.getTopic().trim().length() > 0)
 		{
-			topic=new JLabel(bot.getTopic());
+			topic = new JLabel(bot.getTopic());
 			scroller.setBounds(20, 45, 810, 225);
-			TitledBorder title2= BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Topic set by "+bot.getTopicSetter());
+			TitledBorder title2 = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Topic set by " + bot.getTopicSetter());
 			title2.setTitleJustification(TitledBorder.LEFT);
 			topic.setBorder(title2);
 			topic.setBounds(20, 5, 810, 40);
@@ -187,27 +193,35 @@ public class IRCPane extends JPanel implements IRCMessageListener
 		input.setEnabled(true);
 		repaint();
 	}
+
 	public void receiveMessage(String message)
 	{
-		String color="gray";
-		if(message.charAt(0)=='*')
-			color="purple";
-		if(bot.containsNick(message))
-			color="red";
-		IRCLog.add("<font color=\""+color+"\">"+message+"</font><br>");
+		if (message.toLowerCase().contains("changed their nick to " + bot.getNick()))
+			return;
+		String color = "#B0B0B0";
+		if (message.charAt(0) == '*')
+			color = "purple";
+		if (bot.containsNick(message))
+		{
+			color = "red";
+			bot.alertAlertListener();
+			// LaunchFrame.tabbedPane.setIconAt(3, new
+			// ImageIcon(this.getClass().getResource("/image/tabs/chat_alert.png")));
+		}
+		IRCLog.add("<font color=\"" + color + "\">" + message.replaceAll("<", "\"<\"") + "</font><br>");
 		refreshLogs();
 	}
 
 	public void startBot(String nick)
 	{
-		IRCLog=new ArrayList<String>();
+		IRCLog = new ArrayList<String>();
 		text = new JEditorPane("text/html", "<HTML>");
 		text.setEditable(false);
 		kit = new HTMLEditorKit();
 		text.setEditorKit(kit);
 
-		bot=new IRCBot("irc.liberty-unleashed.co.uk", "#Minelord", nick, this);
-		scroller=new JScrollPane(text);
+		bot.connect("irc.liberty-unleashed.co.uk", "#Minelord", nick, this);
+		scroller = new JScrollPane(text);
 		scroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
 		scroller.setForeground(Color.gray.darker());
@@ -216,7 +230,7 @@ public class IRCPane extends JPanel implements IRCMessageListener
 		connect();
 		scroller.setBounds(20, 20, 810, 250);
 		add(scroller);
-		input=new JTextField();
+		input = new JTextField();
 		input.setBounds(20, 270, 810, 30);
 		input.setBackground(Color.gray);
 		input.setEnabled(false);
@@ -244,22 +258,35 @@ public class IRCPane extends JPanel implements IRCMessageListener
 			@Override
 			public void keyReleased(KeyEvent arg0)
 			{
-				if(arg0.getKeyCode()==10)
+				if (arg0.getKeyCode() == 10)
 				{
 					bot.send(input.getText());
-					if(input.getText().length()>0&&input.getText().charAt(0)=='/')
+					if (input.getText().length() > 0 && input.getText().charAt(0) == '/')
 					{
-						IRCLog.add("<font color=\"purple\">"+bot.parseCommand(input.getText())+"</font><br>");
+						if(bot.parseCommand(input.getText())==null)
+						{
+							input.setText("");
+							IRCLog.add("<font color=\"red\">Unknown command!</font><br>");
+							refreshLogs();
+							return;
+						}
+						if(bot.parseCommand(input.getText()).length()==0)
+						{
+							input.setText("");
+							return;
+						}
+						if (bot.parseCommand(input.getText()) != null)
+							IRCLog.add("<font color=\"purple\">" + bot.parseCommand(input.getText()).replace("<", "\"<\"") + "</font><br>");
 						refreshLogs();
 					}
 					else
 					{
-						IRCLog.add("<font color=\"gray\">"+bot.getNick()+": "+input.getText()+"</font><br>");
+						IRCLog.add("<font color=\"gray\">" + bot.getNick() + ": " + input.getText().replace("<", "\"<\"") + "</font><br>");
 						refreshLogs();
 					}
 					input.setText("");
 				}
-				if(arg0.getKeyCode()==27)
+				if (arg0.getKeyCode() == 27)
 					input.setText("");
 			}
 
@@ -271,6 +298,7 @@ public class IRCPane extends JPanel implements IRCMessageListener
 			}
 		});
 	}
+
 	synchronized private void refreshLogs()
 	{
 		doc = new HTMLDocument();
@@ -301,5 +329,10 @@ public class IRCPane extends JPanel implements IRCMessageListener
 			}
 			text.setCaretPosition(text.getDocument().getLength());
 		}
+	}
+
+	@Override
+	public void onVisible()
+	{
 	}
 }

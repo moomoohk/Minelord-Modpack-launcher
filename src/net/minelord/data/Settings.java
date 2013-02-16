@@ -90,7 +90,6 @@ public class Settings extends Properties
 			Logger.logError("Failed to save settings", e);
 		}
 	}
-
 	public String getRamMax()
 	{
 		return getProperty("ramMax", Integer.toString(1024));

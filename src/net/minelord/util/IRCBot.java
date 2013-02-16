@@ -17,25 +17,8 @@ public class IRCBot implements IRCEventListener
 	private ConnectionManager conman;
 	private Profile p;
 	private IRCMessageListener messageListener;
+	private IRCAlertListener alertListener;
 	private Session s;
-
-	public IRCBot(String network, String room, String nick)
-	{
-		this(network, room, nick, null);
-	}
-
-	public IRCBot(String network, String room, String nick, IRCMessageListener messageListener)
-	{
-		this.channel = null;
-		this.nick = nick;
-		this.p = new Profile(nick);
-		this.network = network;
-		this.room = room.charAt(0) != '#' ? "#" + room : room;
-		this.conman = new ConnectionManager(new Profile(nick));
-		this.conman.requestConnection(network).addIRCEventListener(this);
-		this.messageListener = messageListener;
-		this.s=null;
-	}
 
 	public void receiveEvent(IRCEvent e)
 	{
@@ -66,10 +49,10 @@ public class IRCBot implements IRCEventListener
 				this.messageListener.connected();
 				return;
 			}
-			if (e.getType() == Type.ERROR)
+			if (e.getType() == Type.CONNECTION_LOST)
 			{
-				ConnectionManager conman = new ConnectionManager(p);
-				conman.requestConnection(network).addIRCEventListener(this);
+				conman.quit();
+				this.messageListener.disconnect();
 				return;
 			}
 			try
@@ -152,17 +135,24 @@ public class IRCBot implements IRCEventListener
 
 	public String parseCommand(String message)
 	{
-		if (message.contains(" "))
+		if (message.trim().contains(" "))
 			for (int i = 0; i < message.length(); i++)
 			{
 				if (message.charAt(i) == ' ')
 				{
 					if (message.toLowerCase().contains("/me"))
-						return getNick()+""+message.substring(i);
+						return "*"+getNick()+""+message.substring(i);
 					if (message.toLowerCase().contains("/quit"))
 						return "Quitting...";
 					if(message.toLowerCase().contains("/join"))
 						return "Switching...";
+					if(message.toLowerCase().contains("/nick"))
+					{
+						if(message.substring(i+1).equals(getNick()))
+							return "";
+						else
+							return "You changed your nick to "+message.substring(i+1);
+					}
 					break;
 				}
 			}
@@ -170,8 +160,15 @@ public class IRCBot implements IRCEventListener
 		{
 			if (message.toLowerCase().contains("/quit"))
 				return "Quitting...";
+			if(message.toLowerCase().contains("/nick"))
+			{
+				if(!this.nick.equals(getNick()))
+					return "You changed your nick to "+this.nick;
+				else
+					return "";
+			}
 		}
-		return "";
+		return null;
 	}
 
 	public void send(String message)
@@ -188,6 +185,8 @@ public class IRCBot implements IRCEventListener
 							this.s.setAway(message.substring(i));
 						if (message.toLowerCase().contains("/me"))
 							this.channel.action(message.substring(i));
+						if(message.toLowerCase().contains("/nick"))
+							this.s.changeNick(message.substring(i).trim());
 						if (message.toLowerCase().contains("/quit"))
 						{
 							this.conman.quit(message.substring(i));
@@ -216,6 +215,8 @@ public class IRCBot implements IRCEventListener
 					this.s.unsetAway();
 				if(message.toLowerCase().contains("/away"))
 					this.s.setAway("");
+				if(message.toLowerCase().contains("/nick"))
+					this.s.changeNick(nick);
 			}
 		}
 		else
@@ -227,7 +228,7 @@ public class IRCBot implements IRCEventListener
 
 	public boolean containsNick(String msg)
 	{
-		if (msg.toLowerCase().contains(this.nick.toLowerCase()))
+		if (msg.toLowerCase().contains(getNick().toLowerCase()))
 			return true;
 		return false;
 	}
@@ -253,5 +254,26 @@ public class IRCBot implements IRCEventListener
 	public String getTopicSetter()
 	{
 		return this.channel.getTopicSetter();
+	}
+	public void setIRCAlertListener(IRCAlertListener listener)
+	{
+		this.alertListener=listener;
+	}
+	public void alertAlertListener()
+	{
+		if(this.alertListener!=null)
+			this.alertListener.alert();
+	}
+	public void connect(String network, String room, String nick, IRCMessageListener messageListener)
+	{
+		this.channel = null;
+		this.nick = nick;
+		this.p = new Profile(nick);
+		this.network = network;
+		this.room = room.charAt(0) != '#' ? "#" + room : room;
+		this.messageListener = messageListener;
+		this.s=null;
+		this.conman = new ConnectionManager(new Profile(nick));
+		this.conman.requestConnection(network).addIRCEventListener(this);
 	}
 }
