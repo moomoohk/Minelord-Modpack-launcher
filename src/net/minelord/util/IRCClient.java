@@ -1,5 +1,7 @@
 package net.minelord.util;
 
+import java.util.List;
+
 import jerklib.Channel;
 import jerklib.ConnectionManager;
 import jerklib.Profile;
@@ -10,7 +12,7 @@ import jerklib.events.JoinCompleteEvent;
 import jerklib.listeners.IRCEventListener;
 import net.minelord.log.Logger;
 
-public class IRCBot implements IRCEventListener
+public class IRCClient implements IRCEventListener
 {
 	private Channel channel;
 	private String network, room, nick;
@@ -63,7 +65,10 @@ public class IRCBot implements IRCEventListener
 				if (e.getType() == Type.CHANNEL_MESSAGE)
 					message = sender + ": " + raw.substring(raw.indexOf(this.channel.getName()) + this.channel.getName().length() + 2);
 				if (e.getType() == Type.NICK_CHANGE)
+				{
 					message = "*"+sender + " changed their nick to " + raw.substring(raw.indexOf("NICK") + 5);
+					this.messageListener.updateUserList();
+				}
 				if (e.getType() == Type.CTCP_EVENT)
 					message = "*" + sender + raw.substring(raw.indexOf("ACTION") + 6);
 				if (e.getType() == Type.JOIN)
@@ -174,6 +179,8 @@ public class IRCBot implements IRCEventListener
 	public void send(String message)
 	{
 		message=message.trim();
+		if(message.length()==0)
+			return;
 		if (message.charAt(0) == '/')
 		{
 			if (message.contains(" "))
@@ -273,7 +280,11 @@ public class IRCBot implements IRCEventListener
 		this.room = room.charAt(0) != '#' ? "#" + room : room;
 		this.messageListener = messageListener;
 		this.s=null;
-		this.conman = new ConnectionManager(new Profile(nick));
+		this.conman = new ConnectionManager(p);
 		this.conman.requestConnection(network).addIRCEventListener(this);
+	}
+	public List<String> getUserList()
+	{
+		return this.channel.getNicks();
 	}
 }

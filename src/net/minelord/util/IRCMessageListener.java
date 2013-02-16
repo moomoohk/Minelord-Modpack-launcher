@@ -10,5 +10,6 @@ public interface IRCMessageListener
 	public void connect();
 	public void connected();
 	public void updateTopic();
+	public void updateUserList();
 }
 

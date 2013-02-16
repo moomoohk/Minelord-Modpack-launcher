@@ -553,7 +553,7 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 				}
 			}
 		});
-		IRCPane.bot.setIRCAlertListener(this);
+		IRCPane.client.setIRCAlertListener(this);
 	}
 
 	public void setNewsIcon()
@@ -1233,6 +1233,6 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 	public void alert()
 	{
 		if(currentPane!=Panes.CHAT)
-			tabbedPane.setIconAt(3, new ImageIcon(this.getClass().getResource("/image/tabs/chat_new.png")));
+			tabbedPane.setIconAt(3, new ImageIcon(this.getClass().getResource("/image/tabs/chat_alert.png")));
 	}
 }
