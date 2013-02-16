@@ -44,6 +44,7 @@ import net.minelord.log.Logger;
 import net.minelord.util.IRCBot;
 import net.minelord.util.IRCMessageListener;
 import net.minelord.util.OSUtils;
+import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml3;
 
 public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 {
@@ -208,7 +209,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 			// LaunchFrame.tabbedPane.setIconAt(3, new
 			// ImageIcon(this.getClass().getResource("/image/tabs/chat_alert.png")));
 		}
-		IRCLog.add("<font color=\"" + color + "\">" + message.replaceAll("<", "\"<\"") + "</font><br>");
+		IRCLog.add("<font color=\"" + color + "\">" + escapeHtml3(message).replaceAll("\"<\"", "<") + "</font><br>");
 		refreshLogs();
 	}
 
@@ -276,12 +277,12 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 							return;
 						}
 						if (bot.parseCommand(input.getText()) != null)
-							IRCLog.add("<font color=\"purple\">" + bot.parseCommand(input.getText()).replace("<", "\"<\"") + "</font><br>");
+							IRCLog.add("<font color=\"purple\">" + escapeHtml3(bot.parseCommand(input.getText())).replaceAll("\"<\"", "<") + "</font><br>");
 						refreshLogs();
 					}
 					else
 					{
-						IRCLog.add("<font color=\"gray\">" + bot.getNick() + ": " + input.getText().replace("<", "\"<\"") + "</font><br>");
+						IRCLog.add("<font color=\"gray\">" + escapeHtml3(bot.getNick() + ": " + input.getText()).replaceAll("\"<\"", "<")+ "</font><br>");
 						refreshLogs();
 					}
 					input.setText("");
