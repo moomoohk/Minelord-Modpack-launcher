@@ -143,7 +143,6 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 	{
 		NEWS, OPTIONS, MODPACK, CHAT, TEXTURE
 	}
-
 	/**
 	 * Launch the application.
 	 * 

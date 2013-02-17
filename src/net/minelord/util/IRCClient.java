@@ -4,6 +4,7 @@ import java.util.List;
 
 import jerklib.Channel;
 import jerklib.ConnectionManager;
+import jerklib.EventToken;
 import jerklib.Profile;
 import jerklib.Session;
 import jerklib.events.IRCEvent;
@@ -24,6 +25,16 @@ public class IRCClient implements IRCEventListener
 
 	public void receiveEvent(IRCEvent e)
 	{
+		EventToken token=new EventToken(e.getRawEventData());
+		/*System.out.println("command "+ token.command()+" --");
+		System.out.println("data "+token.data()+" --");
+		System.out.println("hostname "+token.hostName()+" --");
+		System.out.println("nick "+token.nick()+" --");
+		System.out.println("numeric "+token.numeric()+" --");
+		System.out.println("prefix "+token.prefix()+ " --");
+		System.out.println("username "+token.userName()+" --");
+		System.out.println("tostring "+token.args().toString()+" --");
+		System.out.println();*/
 		Logger.logInfo(e.getType() + " : " + e.getRawEventData());
 		if (e.getType() == Type.CONNECT_COMPLETE)
 		{
@@ -116,6 +127,8 @@ public class IRCClient implements IRCEventListener
 						return;
 					}
 				}
+				if(e.getType()==Type.PRIVATE_MESSAGE)
+					message="["+sender+" -> You]: "+raw.substring(raw.indexOf(getNick()+" :")+getNick().length()+2);
 				if (message.contains("€¦"))
 					message = message.replace("€¦", "...");
 				// System.err.println(e.getType() + " : " + raw);
@@ -140,6 +153,7 @@ public class IRCClient implements IRCEventListener
 
 	public String parseCommand(String message)
 	{
+		message=message.trim();
 		if (message.trim().contains(" "))
 			for (int i = 0; i < message.length(); i++)
 			{
@@ -157,6 +171,13 @@ public class IRCClient implements IRCEventListener
 							return "";
 						else
 							return "You changed your nick to "+message.substring(i+1);
+					}
+					if(message.contains("/msg"))
+					{
+						String receipient=message.substring(i+1);
+						String pm=receipient.substring(receipient.indexOf(' '));
+						receipient=receipient.substring(0, receipient.indexOf(' '));
+						return "[You -> "+receipient+"]: "+pm;
 					}
 					break;
 				}
@@ -178,9 +199,6 @@ public class IRCClient implements IRCEventListener
 
 	public void send(String message)
 	{
-		message=message.trim();
-		if(message.length()==0)
-			return;
 		if (message.charAt(0) == '/')
 		{
 			if (message.contains(" "))
@@ -207,6 +225,13 @@ public class IRCClient implements IRCEventListener
 							this.s.join(message.substring(i).trim());
 							this.room=message.substring(i);
 							this.messageListener.connect();
+						}
+						if(message.toLowerCase().contains("/msg"))
+						{
+							String receipient=message.substring(i+1);
+							String pm=receipient.substring(receipient.indexOf(' '));
+							receipient=receipient.substring(0, receipient.indexOf(' '));
+							this.s.sayPrivate(receipient, pm);
 						}
 						break;
 					}

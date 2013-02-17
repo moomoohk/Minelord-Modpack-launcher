@@ -38,6 +38,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.UIDefaults;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
@@ -71,6 +72,24 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 	public static JLabel topic;
 	public static JPopupMenu popup;
 
+	static
+	{
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable()
+		{
+			public void run()
+			{
+				if(text!=null)
+				{
+					UIDefaults defaults = new UIDefaults();
+					Object painter = UIManager.get("EditorPane[Enabled].backgroundPainter");
+					defaults.put("EditorPane[Enabled].backgroundPainter", painter);
+					text.putClientProperty("Nimbus.Overrides", defaults);
+					text.putClientProperty("Nimbus.Overrides.InheritDefaults", true);
+					text.setBackground(null);
+				}
+			}
+		}));
+	}
 	public IRCPane()
 	{
 		super();
@@ -201,6 +220,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 			add(topic);
 		}
 		input.setEnabled(true);
+		input.requestFocus();
 		final JPopupMenu popup = new JPopupMenu();
 		JLabel help = new JLabel("Politely ask for help");
 		help.addMouseListener(new MouseAdapter()
@@ -314,13 +334,12 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 				}
 				if (arg0.getKeyCode() == 27)
 					input.setText("");
+				System.out.println(arg0.getKeyCode());
 			}
 
 			@Override
 			public void keyPressed(KeyEvent arg0)
 			{
-				// TODO Auto-generated method stub
-
 			}
 		});
 	}
