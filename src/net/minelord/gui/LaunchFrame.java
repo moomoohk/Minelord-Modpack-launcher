@@ -390,7 +390,7 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 			}
 		});
 		showUserlist=new JToggleButton("Show userlist");
-		showUserlist.setBounds(660, 20, 100, 30);
+		showUserlist.setBounds(660, 20, 120, 30);
 		showUserlist.getModel().setSelected(true);
 		showUserlist.setVisible(false);
 		showUserlist.addActionListener(new ActionListener()

@@ -61,7 +61,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 	 */
 	private static final long serialVersionUID = 1L;
 	public static IRCClient client = new IRCClient();
-	public static String nick, status="Disconnected";
+	public static String nick, status = "Disconnected", lastNick = null;
 	public static JEditorPane text;
 	public static JScrollPane scroller, userScroller;
 	public static JTextField input;
@@ -73,9 +73,11 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 	public static JLabel topic;
 	public static JPopupMenu popup;
 	public static Rectangle scrollerWithoutTopicWithUserlist = new Rectangle(22, 10, 598, 258), scrollerWithTopicWithUserlist = new Rectangle(22, 45, 598, 223), userScrollWithTopic = new Rectangle(620, 45, 210, 225), userScrollerWithoutTopic = new Rectangle(620, 10, 210, 260),
-	topicBounds = new Rectangle(20, 5, 810, 40), scrollerWithoutTopicWithoutUserlist=new Rectangle(20, 10, 810, 260), scrollerWithTopicWithoutUserlist=new Rectangle(20, 45, 810, 225);
+	topicBounds = new Rectangle(20, 5, 810, 40), scrollerWithoutTopicWithoutUserlist = new Rectangle(20, 10, 810, 260), scrollerWithTopicWithoutUserlist = new Rectangle(20, 45, 810, 225);
 	public static String actionColor = "#5194ED", receiveColor = "#9E9E9E", sendColor = "#5194ED", nickalertColor = "#F74848", errorColor = "red";
-	public static boolean quit = false, showTopic=true, showUserList=true;
+	public static boolean quit = false, showTopic = true, showUserList = true;
+	public static ArrayList<String> lastCommands = new ArrayList<String>();
+	public static int lastCommandSelector = 0;
 
 	static
 	{
@@ -156,14 +158,18 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 		nickSelectPane.add(nickSelect);
 		nickSelectPane.add(done);
 		add(nickSelectPane);
+		nickSelect.requestFocus();
 	}
 
 	public void disconnect()
 	{
-		status="Disconnecting...";
+		status = "Disconnecting...";
 		TitledBorder title = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), status);
 		title.setTitleJustification(TitledBorder.RIGHT);
-		userScroller.setBorder(title);
+		if (userScroller != null)
+			userScroller.setBorder(title);
+		else
+			scroller.setBorder(title);
 		input.setText("");
 		input.setEnabled(false);
 	}
@@ -171,7 +177,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 	public void connect()
 	{
 		text.setText("");
-		status="Connecting...";
+		status = "Connecting...";
 		TitledBorder title = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), status);
 		title.setTitleJustification(TitledBorder.RIGHT);
 		scroller.setBorder(title);
@@ -179,19 +185,24 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 
 	public void quit()
 	{
-		status="Disconnected";
+		status = "Disconnected";
+		lastNick = null;
 		TitledBorder title = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), status);
 		title.setTitleJustification(TitledBorder.RIGHT);
-		userScroller.setBorder(title);
+		if (userScroller != null)
+			userScroller.setBorder(title);
+		else
+			scroller.setBorder(title);
 		input.setText("");
 		input.setEnabled(false);
 		remove(scroller);
 		remove(input);
-		remove(topic);
-		remove(userScroller);
+		if (topic != null && topic.getParent() == this)
+			remove(topic);
+		if (userScroller != null && userScroller.getParent() == this)
+			remove(userScroller);
 		add(nickSelectPane);
 		quit = false;
-		revalidate();
 		repaint();
 	}
 
@@ -199,14 +210,14 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 	{
 		if (client.getTopic().trim().length() > 0)
 		{
-			if(topic==null)
-				topic=new JLabel();
+			if (topic == null)
+				topic = new JLabel();
 			topic.setText(client.getTopic());
 			TitledBorder title = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Topic set by " + client.getTopicSetter());
 			title.setTitleJustification(TitledBorder.LEFT);
 			topic.setBorder(title);
-			//add(topic);
-			
+			// add(topic);
+
 		}
 		else
 		{
@@ -224,7 +235,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 	{
 		scroller.setBounds(scrollerWithoutTopicWithUserlist);
 		scroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		status="Connected";
+		status = "Connected";
 		client.connectAlertListener();
 		TitledBorder title = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Connected");
 		title.setTitleJustification(TitledBorder.RIGHT);
@@ -250,12 +261,13 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 			add(topic);
 		}
 		else
-			topic=new JLabel("");
+			topic = new JLabel("");
 		input.setEnabled(true);
 		input.requestFocus();
 		final JPopupMenu popup = new JPopupMenu();
 		JLabel help = new JLabel("Politely ask for help");
-		help.addMouseListener(new MouseAdapter() //    -------------------------add message
+		JLabel message = new JLabel("Message");
+		help.addMouseListener(new MouseAdapter()
 		{
 			public void mousePressed(MouseEvent e)
 			{
@@ -268,7 +280,25 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 			{
 			}
 		});
+		message.addMouseListener(new MouseAdapter()
+		{
+
+			@Override
+			public void mouseReleased(MouseEvent paramMouseEvent)
+			{
+				popup.setVisible(false);
+				if (input.getText().length() == 0)
+				{
+					input.setText(input.getText() + "/msg " + userList.getModel().getElementAt(userList.getSelectedIndex()) + " ");
+					input.selectAll();
+				}
+				else
+					receiveMessage("-You might wanna clear your chatbar before you do that");
+				input.requestFocus();
+			}
+		});
 		popup.add(help);
+		popup.add(message);
 		userList.addMouseListener(new MouseAdapter()
 		{
 			public void mousePressed(MouseEvent e)
@@ -293,18 +323,28 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 
 	public void receiveMessage(String message)
 	{
-		if (message.toLowerCase().contains("changed their nick to " + client.getNick()))
-		{
-			nick = client.getNick();
-			return;
-		}
 		String color = receiveColor;
-		if (message.charAt(0) == '*' || message.charAt(0) == '[')
-			color = actionColor;
-		if (client.containsNick(message))
+		if (message.charAt(0) == '-')
 		{
-			color = nickalertColor;
-			client.alertAlertListener();
+			color = errorColor;
+			message = message.substring(1);
+		}
+		else
+		{
+			if (message.toLowerCase().contains("changed their nick to " + client.getNick()))
+			{
+				nick = client.getNick();
+				return;
+			}
+			if (message.charAt(0) == '*' || message.charAt(0) == '[')
+				color = actionColor;
+			if (client.containsNick(message))
+			{
+				color = nickalertColor;
+				client.alertAlertListener();
+			}
+			if (message.charAt(0) == '[')
+				lastNick = message.substring(1, message.indexOf(" "));
 		}
 		IRCLog.add("<font color=\"" + color + "\">" + escapeHtml3(message).replaceAll("\"<\"", "<") + "</font><br>");
 		refreshLogs();
@@ -318,7 +358,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 		text.setEditable(false);
 		kit = new HTMLEditorKit();
 		text.setEditorKit(kit);
-		client.connect("irc.liberty-unleashed.co.uk", "#minelord-modpack", nick, this);
+		client.connect("irc.liberty-unleashed.co.uk", "#minelord ", nick, this);
 		scroller = new JScrollPane(text);
 		text.setEditable(false);
 		connect();
@@ -361,6 +401,11 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 			{
 				if (arg0.getKeyCode() == 10)
 				{
+					if (input.getText().length() > 0)
+					{
+						lastCommandSelector = lastCommands.size();
+						lastCommands.add(input.getText());
+					}
 					sendMessage(input.getText());
 					input.setText("");
 				}
@@ -372,6 +417,22 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 					input.setText(complete(input.getText()));
 					input.select(input.getText().length() - complete(input.getText()).length() + before, input.getText().length());
 				}
+				if (arg0.getKeyCode() == 38)
+					if (lastCommandSelector > 0)
+					{
+						lastCommandSelector--;
+						input.setText(lastCommands.get(lastCommandSelector));
+					}
+				if (arg0.getKeyCode() == 40)
+					if (lastCommandSelector < lastCommands.size())
+					{
+						lastCommandSelector++;
+						if (lastCommandSelector == lastCommands.size())
+							input.setText("");
+						if (lastCommandSelector < lastCommands.size())
+							input.setText(lastCommands.get(lastCommandSelector));
+						return;
+					}
 			}
 
 			@Override
@@ -392,6 +453,13 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 			{
 				input.setText("");
 				IRCLog.add("<font color=\"" + errorColor + "\">Unknown command!</font><br>");
+				refreshLogs();
+				return;
+			}
+			if (client.parseCommand(message).charAt(0) == '-')
+			{
+				input.setText("");
+				IRCLog.add("<font color=\"" + errorColor + "\">" + escapeHtml3(client.parseCommand(message)).replaceAll("\"<\"", "<").substring(1) + "</font><br>");
 				refreshLogs();
 				return;
 			}
@@ -472,11 +540,16 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 	public void kicked()
 	{
 		client.quit();
-		status="Disconnected";
-		TitledBorder title = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED),status);
+		status = "Disconnected";
+		TitledBorder title = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), status);
 		title.setTitleJustification(TitledBorder.RIGHT);
-		userScroller.setBorder(title);
-		userList.setListData(new Object[0]);
+		if (userScroller != null)
+		{
+			userScroller.setBorder(title);
+			userList.setListData(new Object[0]);
+		}
+		else
+			scroller.setBorder(title);
 		input.setText("");
 		input.setEnabled(false);
 		quit = true;
@@ -484,36 +557,37 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 
 	public static void showTopic(boolean f)
 	{
-		showTopic=f;
+		showTopic = f;
 		updateBounds();
 	}
 
 	public static void showUserList(boolean f)
 	{
-		showUserList=f;
+		showUserList = f;
 		updateBounds();
 	}
+
 	public static void updateBounds()
 	{
-		if(topic.getText().length()==0)
-			showTopic=false;
+		if (topic.getText().length() == 0)
+			showTopic = false;
 		topic.setVisible(showTopic);
 		userScroller.setVisible(showUserList);
-		if(topic!=null&&!showTopic&&!showUserList)
+		if (topic != null && !showTopic && !showUserList)
 			scroller.setBounds(scrollerWithoutTopicWithoutUserlist);
-		if(topic!=null&&!showTopic&&showUserList)
+		if (topic != null && !showTopic && showUserList)
 		{
 			scroller.setBounds(scrollerWithoutTopicWithUserlist);
 			userScroller.setBounds(userScrollerWithoutTopic);
 		}
-		if(topic!=null&&showTopic&&showUserList)
+		if (topic != null && showTopic && showUserList)
 		{
 			scroller.setBounds(scrollerWithTopicWithUserlist);
 			userScroller.setBounds(userScrollWithTopic);
 		}
-		if(topic!=null&&showTopic&&!showUserList)
+		if (topic != null && showTopic && !showUserList)
 			scroller.setBounds(scrollerWithTopicWithoutUserlist);
-		if(topic!=null&&!showUserList)
+		if (topic != null && !showUserList)
 		{
 			TitledBorder title = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), status);
 			title.setTitleJustification(TitledBorder.RIGHT);
