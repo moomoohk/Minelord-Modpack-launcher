@@ -78,7 +78,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 		{
 			public void run()
 			{
-				if(text!=null)
+				if (text != null)
 				{
 					UIDefaults defaults = new UIDefaults();
 					Object painter = UIManager.get("EditorPane[Enabled].backgroundPainter");
@@ -90,6 +90,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 			}
 		}));
 	}
+
 	public IRCPane()
 	{
 		super();
@@ -228,7 +229,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 			public void mousePressed(MouseEvent e)
 			{
 				popup.setVisible(false);
-				sendMessage("/me kicks " + userList.getModel().getElementAt(userList.getSelectedIndex())+" in the shins");
+				sendMessage("/me kicks " + userList.getModel().getElementAt(userList.getSelectedIndex()) + " in the shins");
 				sendMessage("I need help you pleb");
 			}
 
@@ -267,7 +268,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 		if (message.toLowerCase().contains("changed their nick to " + client.getNick()))
 			return;
 		String color = "#9E9E9E";
-		if (message.charAt(0) == '*')
+		if (message.charAt(0) == '*' || message.charAt(0) == '[')
 			color = "#ED6DC5";
 		if (client.containsNick(message))
 		{
@@ -334,7 +335,12 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 				}
 				if (arg0.getKeyCode() == 27)
 					input.setText("");
-				System.out.println(arg0.getKeyCode());
+				if (arg0.getKeyCode() == 17)
+				{
+					int before=input.getText().length();
+					input.setText(complete(input.getText()));
+					input.select(input.getText().length()-complete(input.getText()).length()+before, input.getText().length());
+				}
 			}
 
 			@Override
@@ -346,7 +352,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 
 	public static void sendMessage(String message)
 	{
-		if(message.trim().length()==0)
+		if (message.trim().length() == 0)
 			return;
 		client.send(message);
 		if (message.length() > 0 && message.charAt(0) == '/')
@@ -404,6 +410,25 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 			}
 			text.setCaretPosition(text.getDocument().getLength());
 		}
+	}
+
+	public static String complete(String incomplete)
+	{
+		String temp=incomplete.toLowerCase().trim();
+		if(temp.length()==0)
+			return incomplete;
+		String before="";
+		if(temp.contains(" "))
+		{
+			before=incomplete.substring(0, incomplete.lastIndexOf(" "))+" ";
+			temp=temp.substring(temp.lastIndexOf(' ')+1);
+		}
+		for (int i = 0; i < userList.getModel().getSize(); i++)
+		{
+			if (userList.getModel().getElementAt(i).toString().toLowerCase().startsWith(temp))
+				return before+userList.getModel().getElementAt(i).toString();
+		}
+		return incomplete;
 	}
 
 	@Override
