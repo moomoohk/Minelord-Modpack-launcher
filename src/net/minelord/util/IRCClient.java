@@ -4,7 +4,6 @@ import java.util.List;
 
 import jerklib.Channel;
 import jerklib.ConnectionManager;
-import jerklib.EventToken;
 import jerklib.Profile;
 import jerklib.Session;
 import jerklib.events.IRCEvent;
@@ -25,8 +24,8 @@ public class IRCClient implements IRCEventListener
 
 	public void receiveEvent(IRCEvent e)
 	{
-		EventToken token=new EventToken(e.getRawEventData());
-		/*System.out.println("command "+ token.command()+" --");
+		/*EventToken token=new EventToken(e.getRawEventData());
+		System.out.println("command "+ token.command()+" --");
 		System.out.println("data "+token.data()+" --");
 		System.out.println("hostname "+token.hostName()+" --");
 		System.out.println("nick "+token.nick()+" --");
@@ -103,7 +102,7 @@ public class IRCClient implements IRCEventListener
 						String modeChanged = raw.substring(raw.indexOf(this.channel.getName()) + this.channel.getName().length() + 4);
 						if (modeChanged.equals(this.nick))
 							modeChanged = "you";
-						message = "gotta catch " + mode;
+						message = "TELL MOOMOOHK HE MUST CATCH " + mode;
 						if (mode.equals("+b"))
 							message = sender + " banned " + modeChanged;
 						if (mode.equals("-b"))

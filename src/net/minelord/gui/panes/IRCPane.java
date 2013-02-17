@@ -19,6 +19,7 @@ package net.minelord.gui.panes;
 import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml3;
 
 import java.awt.Color;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -71,6 +72,8 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 	public static HTMLEditorKit kit;
 	public static JLabel topic;
 	public static JPopupMenu popup;
+	public static Rectangle scrollerWithoutTopic = new Rectangle(20, 20, 600, 250), userScrollerWithoutTopic = new Rectangle(620, 20, 210, 250), scrollerWithTopic = new Rectangle(22, 45, 598, 223), userScrollWithTopic = new Rectangle(620, 45, 210, 225), topicBounds = new Rectangle(20, 5, 810, 40);
+	public static String actionColor="#5194ED", receiveColor="#9E9E9E", sendColor="#5194ED", nickalertColor="#F74848", errorColor="red";
 
 	static
 	{
@@ -196,28 +199,29 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 
 	public void connected()
 	{
-		scroller.setBounds(20, 20, 600, 250);
+		scroller.setBounds(scrollerWithoutTopic);
 		scroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		TitledBorder title = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Connected");
 		title.setTitleJustification(TitledBorder.RIGHT);
 		userList = new JList(client.getUserList().toArray());
 		userScroller = new JScrollPane(userList);
-		userScroller.setBounds(620, 20, 210, 250);
+		userScroller.setBounds(userScrollerWithoutTopic);
 		userList.setBounds(0, 0, 210, 250);
 		userList.setBackground(Color.gray);
 		userList.setForeground(Color.gray.darker().darker().darker());
 		userScroller.setBorder(title);
+		userScroller.getVerticalScrollBar().setUnitIncrement(5);
 		scroller.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), ""));
 		if (client.getTopic().trim().length() > 0)
 		{
 			topic = new JLabel(client.getTopic());
-			scroller.setBounds(20, 45, 600, 225);
-			userScroller.setBounds(620, 45, 210, 225);
+			scroller.setBounds(scrollerWithTopic);
+			userScroller.setBounds(userScrollWithTopic);
 			userList.setBounds(0, 0, 210, 225);
 			title = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Topic set by " + client.getTopicSetter());
 			title.setTitleJustification(TitledBorder.LEFT);
 			topic.setBorder(title);
-			topic.setBounds(20, 5, 810, 40);
+			topic.setBounds(topicBounds);
 			add(topic);
 		}
 		input.setEnabled(true);
@@ -252,11 +256,8 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 
 			public void check(MouseEvent e)
 			{
-				if (e.isPopupTrigger())
-				{
-					userList.setSelectedIndex(userList.locationToIndex(e.getPoint()));
-					popup.show(userList, e.getX(), e.getY());
-				}
+				userList.setSelectedIndex(userList.locationToIndex(e.getPoint()));
+				popup.show(userList, e.getX(), e.getY());
 			}
 		});
 		add(userScroller);
@@ -267,12 +268,12 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 	{
 		if (message.toLowerCase().contains("changed their nick to " + client.getNick()))
 			return;
-		String color = "#9E9E9E";
+		String color = receiveColor;
 		if (message.charAt(0) == '*' || message.charAt(0) == '[')
-			color = "#ED6DC5";
+			color = actionColor;
 		if (client.containsNick(message))
 		{
-			color = "#F74848";
+			color = nickalertColor;
 			client.alertAlertListener();
 		}
 		IRCLog.add("<font color=\"" + color + "\">" + escapeHtml3(message).replaceAll("\"<\"", "<") + "</font><br>");
@@ -337,9 +338,9 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 					input.setText("");
 				if (arg0.getKeyCode() == 17)
 				{
-					int before=input.getText().length();
+					int before = input.getText().length();
 					input.setText(complete(input.getText()));
-					input.select(input.getText().length()-complete(input.getText()).length()+before, input.getText().length());
+					input.select(input.getText().length() - complete(input.getText()).length() + before, input.getText().length());
 				}
 			}
 
@@ -360,7 +361,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 			if (client.parseCommand(message) == null)
 			{
 				input.setText("");
-				IRCLog.add("<font color=\"red\">Unknown command!</font><br>");
+				IRCLog.add("<font color=\""+errorColor+"\">Unknown command!</font><br>");
 				refreshLogs();
 				return;
 			}
@@ -370,7 +371,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 				return;
 			}
 			if (client.parseCommand(message) != null)
-				IRCLog.add("<font color=\"#ED6DC5\">" + escapeHtml3(client.parseCommand(message)).replaceAll("\"<\"", "<") + "</font><br>");
+				IRCLog.add("<font color=\""+sendColor+"\">" + escapeHtml3(client.parseCommand(message)).replaceAll("\"<\"", "<") + "</font><br>");
 			refreshLogs();
 		}
 		else
@@ -409,24 +410,25 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 				Logger.logError(ignored.getMessage(), ignored);
 			}
 			text.setCaretPosition(text.getDocument().getLength());
+			scroller.getVerticalScrollBar().setValue(scroller.getVerticalScrollBar().getMaximum()+100);
 		}
 	}
 
 	public static String complete(String incomplete)
 	{
-		String temp=incomplete.toLowerCase().trim();
-		if(temp.length()==0)
+		String temp = incomplete.toLowerCase().trim();
+		if (temp.length() == 0)
 			return incomplete;
-		String before="";
-		if(temp.contains(" "))
+		String before = "";
+		if (temp.contains(" "))
 		{
-			before=incomplete.substring(0, incomplete.lastIndexOf(" "))+" ";
-			temp=temp.substring(temp.lastIndexOf(' ')+1);
+			before = incomplete.substring(0, incomplete.lastIndexOf(" ")) + " ";
+			temp = temp.substring(temp.lastIndexOf(' ') + 1);
 		}
 		for (int i = 0; i < userList.getModel().getSize(); i++)
 		{
 			if (userList.getModel().getElementAt(i).toString().toLowerCase().startsWith(temp))
-				return before+userList.getModel().getElementAt(i).toString();
+				return before + userList.getModel().getElementAt(i).toString();
 		}
 		return incomplete;
 	}
