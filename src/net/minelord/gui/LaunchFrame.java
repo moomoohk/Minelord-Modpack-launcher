@@ -113,7 +113,7 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 	private JPanel footer = new JPanel();
 	private JLabel footerBanner = new JLabel(new ImageIcon(this.getClass().getResource("/image/banner_minelord.png")));
 	private JLabel tpInstallLocLbl = new JLabel();
-	private JButton launch = new JButton(), edit = new JButton(), donate = new JButton(), serverbutton = new JButton(), mapInstall = new JButton(), serverMap = new JButton(), tpInstall = new JButton();
+	private JButton launch = new JButton(), edit = new JButton(), donate = new JButton(), serverbutton = new JButton(), mapInstall = new JButton(), serverMap = new JButton(), tpInstall = new JButton(), openChatInBrowser=new JButton();
 
 	private static String[] dropdown_ =
 	{ "Select Profile", "Create Profile" };
@@ -375,7 +375,33 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 				}
 			}
 		});
-
+		openChatInBrowser=new JButton("Open chat in browser");
+		openChatInBrowser.setBounds(480, 20, 180, 30);
+		openChatInBrowser.setVisible(false);
+		openChatInBrowser.addActionListener(new ActionListener()
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0)
+			{
+				if (Desktop.isDesktopSupported())
+				{
+					Desktop desktop = Desktop.getDesktop();
+					try
+					{
+						desktop.browse(new URI("http://liberty-unleashed.co.uk:9090/?nick="+(IRCPane.nick!=null&&IRCPane.nick.length()>0?IRCPane.nick:"Guest.")+"&channels=Minelord-Pack&prompt=1"));
+					}
+					catch (Exception exc)
+					{
+						Logger.logError("Could not open url: " + exc.getMessage());
+					}
+				}
+				else
+				{
+					Logger.logWarn("Could not open url, not supported");
+				}
+			}
+		});
 		users.setBounds(550, 20, 150, 30);
 		users.addActionListener(new ActionListener()
 		{
@@ -515,6 +541,7 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 		footer.add(serverMap);
 		footer.add(tpInstall);
 		footer.add(tpInstallLocation);
+		footer.add(openChatInBrowser);
 
 		newsPane = new NewsPane();
 		modPacksPane = new ModpacksPane();
@@ -1087,14 +1114,17 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 		case CHAT:
 			disableMainButtons();
 			disableTextureButtons();
+			openChatInBrowser.setVisible(true);
 			break;
 		case TEXTURE:
+			openChatInBrowser.setVisible(false);
 			tpInstall.setVisible(true);
 			tpInstallLocation.setVisible(true);
 			disableMainButtons();
 			disableMapButtons();
 			break;
 		default:
+			openChatInBrowser.setVisible(false);
 			launch.setVisible(true);
 			edit.setEnabled(users.getSelectedIndex() > 1);
 			edit.setVisible(true);

@@ -126,6 +126,8 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 				}
 				else
 					success = false;
+				if(success)
+					IRCPane.nick=nick;
 				done.setEnabled(success);
 			}
 
@@ -267,8 +269,11 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 	public void receiveMessage(String message)
 	{
 		if (message.toLowerCase().contains("changed their nick to " + client.getNick()))
+		{
+			nick=client.getNick();
 			return;
-		String color = receiveColor;
+		}
+			String color = receiveColor;
 		if (message.charAt(0) == '*' || message.charAt(0) == '[')
 			color = actionColor;
 		if (client.containsNick(message))
