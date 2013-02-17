@@ -74,7 +74,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 	public static JPopupMenu popup;
 	public static Rectangle scrollerWithoutTopicWithUserlist = new Rectangle(22, 10, 598, 258), scrollerWithTopicWithUserlist = new Rectangle(22, 45, 598, 223), userScrollWithTopic = new Rectangle(620, 45, 210, 225), userScrollerWithoutTopic = new Rectangle(620, 10, 210, 260),
 	topicBounds = new Rectangle(20, 5, 810, 40), scrollerWithoutTopicWithoutUserlist = new Rectangle(20, 10, 810, 260), scrollerWithTopicWithoutUserlist = new Rectangle(20, 45, 810, 225);
-	public static String actionColor = "#5194ED", receiveColor = "#9E9E9E", sendColor = "#5194ED", nickalertColor = "#F74848", errorColor = "red";
+	public static String actionColor = "#5194ED", receiveColor = "#858585", sendColor = "#A1A1A1", nickalertColor = "#F74848", errorColor = "red", pmColor = "#B225CF";
 	public static boolean quit = false, showTopic = true, showUserList = true;
 	public static ArrayList<String> lastCommands = new ArrayList<String>();
 	public static int lastCommandSelector = 0;
@@ -287,13 +287,8 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 			public void mouseReleased(MouseEvent paramMouseEvent)
 			{
 				popup.setVisible(false);
-				if (input.getText().length() == 0)
-				{
-					input.setText(input.getText() + "/msg " + userList.getModel().getElementAt(userList.getSelectedIndex()) + " ");
-					input.selectAll();
-				}
-				else
-					receiveMessage("-You might wanna clear your chatbar before you do that");
+				input.setText("/msg " + userList.getModel().getElementAt(userList.getSelectedIndex()) + (input.getText().length() > 0 && input.getText().charAt(0) == ' ' ? input.getText() : " " + input.getText()));
+				input.select(0, ("/msg " + userList.getModel().getElementAt(userList.getSelectedIndex()) + (input.getText().length() > 0 && input.getText().charAt(0) == ' ' ? "" : " ")).length());
 				input.requestFocus();
 			}
 		});
@@ -321,22 +316,69 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 		repaint();
 	}
 
+	public static void sendMessage(String message)
+	{
+		client.send(message);
+		if(message.trim().length()>0)
+		{
+			if(message.charAt(0)=='/')
+			{
+				if (client.parseCommand(message) == null)
+				{
+					IRCLog.add("<font color=\"" + errorColor + "\">" + escapeHtml3("Unknown command!").replaceAll("\"<\"", "<") + "</font><br>");
+					refreshLogs();
+					return;
+				}	
+				else
+				{
+					if (client.parseCommand(message).length()==0)
+						return;
+					String color=sendColor, actualMessage=message;
+					input.setText("");
+					if(client.parseCommand(message).charAt(0)=='*')
+						color=actionColor;
+					if (client.parseCommand(message).charAt(0) == '-')
+						color=errorColor;
+					if(client.parseCommand(message).charAt(0)=='[')
+						color=pmColor;
+					if (client.parseCommand(message)!=null&&client.parseCommand(message).length() == 0)
+					{
+						input.setText("");
+						return;
+					}
+					IRCLog.add("<font color=\"" + color + "\">" + escapeHtml3(client.parseCommand(actualMessage)).replaceAll("\"<\"", "<") + "</font><br>");
+					refreshLogs();
+				}
+			}
+			else
+			{
+				IRCLog.add("<font color=\""+sendColor+"\">" + escapeHtml3(client.getNick() + ": " + message).replaceAll("\"<\"", "<") + "</font><br>");
+				refreshLogs();
+			}
+		}
+
+	}
+
 	public void receiveMessage(String message)
 	{
-		String color = receiveColor;
 		if (message.charAt(0) == '-')
 		{
-			color = errorColor;
 			message = message.substring(1);
+			IRCLog.add("<font color=\"" + errorColor + "\">" + escapeHtml3(message).replaceAll("\"<\"", "<") + "</font><br>");
+			refreshLogs();
+			return;
 		}
 		else
 		{
+			String color = receiveColor;
 			if (message.toLowerCase().contains("changed their nick to " + client.getNick()))
 			{
 				nick = client.getNick();
 				return;
 			}
-			if (message.charAt(0) == '*' || message.charAt(0) == '[')
+			if (message.charAt(0) == '[')
+				color = pmColor;
+			if (message.charAt(0) == '*')
 				color = actionColor;
 			if (client.containsNick(message))
 			{
@@ -345,9 +387,9 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 			}
 			if (message.charAt(0) == '[')
 				lastNick = message.substring(1, message.indexOf(" "));
+			IRCLog.add("<font color=\"" + color + "\">" + escapeHtml3(message).replaceAll("\"<\"", "<") + "</font><br>");
+			refreshLogs();
 		}
-		IRCLog.add("<font color=\"" + color + "\">" + escapeHtml3(message).replaceAll("\"<\"", "<") + "</font><br>");
-		refreshLogs();
 	}
 
 	public void startClient(String nick)
@@ -440,43 +482,6 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 			{
 			}
 		});
-	}
-
-	public static void sendMessage(String message)
-	{
-		if (message.trim().length() == 0)
-			return;
-		client.send(message);
-		if (message.length() > 0 && message.charAt(0) == '/')
-		{
-			if (client.parseCommand(message) == null)
-			{
-				input.setText("");
-				IRCLog.add("<font color=\"" + errorColor + "\">Unknown command!</font><br>");
-				refreshLogs();
-				return;
-			}
-			if (client.parseCommand(message).charAt(0) == '-')
-			{
-				input.setText("");
-				IRCLog.add("<font color=\"" + errorColor + "\">" + escapeHtml3(client.parseCommand(message)).replaceAll("\"<\"", "<").substring(1) + "</font><br>");
-				refreshLogs();
-				return;
-			}
-			if (client.parseCommand(message).length() == 0)
-			{
-				input.setText("");
-				return;
-			}
-			if (client.parseCommand(message) != null)
-				IRCLog.add("<font color=\"" + sendColor + "\">" + escapeHtml3(client.parseCommand(message)).replaceAll("\"<\"", "<") + "</font><br>");
-			refreshLogs();
-		}
-		else
-		{
-			IRCLog.add("<font color=\"white\">" + escapeHtml3(client.getNick() + ": " + message).replaceAll("\"<\"", "<") + "</font><br>");
-			refreshLogs();
-		}
 	}
 
 	synchronized public static void refreshLogs()

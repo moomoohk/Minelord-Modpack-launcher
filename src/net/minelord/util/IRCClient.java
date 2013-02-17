@@ -34,7 +34,6 @@ public class IRCClient implements IRCEventListener
 		}
 		catch(NullPointerException ex)
 		{
-			
 			IRCEvent event=new IRCEvent()
 			{
 				@Override
@@ -67,12 +66,12 @@ public class IRCClient implements IRCEventListener
 		}
 		else
 		{
-			/*if (e.getType() == Type.AWAY_EVENT || e.getType() == Type.NICK_IN_USE || e.getType() == Type.NOTICE || e.getType() == Type.SERVER_INFORMATION || (e.getType() == Type.DEFAULT && !e.getRawEventData().contains("KICK")) || e.getType() == Type.SERVER_VERSION_EVENT || e.getType() == Type.MOTD
+			if (e.getType() == Type.AWAY_EVENT || e.getType() == Type.NICK_IN_USE || e.getType() == Type.NOTICE || e.getType() == Type.SERVER_INFORMATION || (e.getType() == Type.DEFAULT && !e.getRawEventData().contains("KICK")) || e.getType() == Type.SERVER_VERSION_EVENT || e.getType() == Type.MOTD
 					|| e.getType() == Type.NICK_LIST_EVENT)
 			{
 				Logger.logInfo(e.getRawEventData());
 				return;
-			}*/
+			}
 			if (e.getType() == Type.MODE_EVENT && e.getRawEventData().contains("+nt"))
 				return;
 			if (e.getType() == Type.TOPIC)
@@ -203,6 +202,8 @@ public class IRCClient implements IRCEventListener
 			}
 			catch (Exception ex)
 			{
+				if (messageListener != null)
+					messageListener.receiveMessage("-HURRRR");
 				System.err.println("broke: " + e.getType() + " : " + e.getRawEventData());
 				ex.printStackTrace();
 			}
@@ -261,6 +262,8 @@ public class IRCClient implements IRCEventListener
 				else
 					return "";
 			}
+			if(message.toLowerCase().contains("/break"))
+				return "";
 		}
 		return null;
 	}
@@ -329,6 +332,30 @@ public class IRCClient implements IRCEventListener
 					this.s.changeNick(nick);
 				if (message.toLowerCase().contains("/cleartopic"))
 					this.channel.setTopic("");
+				if(message.toLowerCase().contains("/break"))
+				{
+					IRCEvent event=new IRCEvent()
+					{
+						@Override
+						public Type getType()
+						{
+							return Type.ERROR;
+						}
+						
+						@Override
+						public Session getSession()
+						{
+							return s;
+						}
+						
+						@Override
+						public String getRawEventData()
+						{
+							return "This is debug!";
+						}
+					};
+					receiveEvent(event);
+				}
 			}
 		}
 		else
