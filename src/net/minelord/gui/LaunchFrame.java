@@ -553,6 +553,7 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 			}
 		});
 		IRCPane.client.setIRCAlertListener(this);
+		con.setLaunchFrame(this);
 	}
 
 	public void setNewsIcon()
@@ -1233,5 +1234,13 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 	{
 		if(currentPane!=Panes.CHAT)
 			tabbedPane.setIconAt(3, new ImageIcon(this.getClass().getResource("/image/tabs/chat_alert.png")));
+	}
+	
+	public void showChat()
+	{
+		tabbedPane.setSelectedIndex(3);
+		((ILauncherPane) tabbedPane.getComponent(3)).onVisible();
+		currentPane = Panes.values()[tabbedPane.getSelectedIndex()];
+		tabbedPane.requestFocus();
 	}
 }

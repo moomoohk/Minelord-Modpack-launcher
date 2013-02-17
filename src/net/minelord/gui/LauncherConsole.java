@@ -62,6 +62,7 @@ public class LauncherConsole extends JFrame implements ILogListener
 	private LogType logType = LogType.MINIMAL;
 	private final JComboBox logSourceComboBox;
 	private LogSource logSource = LogSource.ALL;
+	public static LaunchFrame f;
 
 	private class OutputOverride extends PrintStream
 	{
@@ -102,6 +103,10 @@ public class LauncherConsole extends JFrame implements ILogListener
 		}
 	}
 
+	public void setLaunchFrame(LaunchFrame f)
+	{
+		LauncherConsole.f=f;
+	}
 	public LauncherConsole()
 	{
 		setTitle("Console");
@@ -110,7 +115,7 @@ public class LauncherConsole extends JFrame implements ILogListener
 		getContentPane().setLayout(new BorderLayout(0, 0));
 
 		JPanel panel = new JPanel();
-
+		
 		getContentPane().add(panel, BorderLayout.SOUTH);
 		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
 
@@ -175,7 +180,7 @@ public class LauncherConsole extends JFrame implements ILogListener
 			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
-			
+				LauncherConsole.f.showChat();
 			}
 		});
 		panel.add(ircButton);
