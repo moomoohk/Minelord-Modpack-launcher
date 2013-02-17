@@ -4,6 +4,7 @@ import java.util.List;
 
 import jerklib.Channel;
 import jerklib.ConnectionManager;
+import jerklib.EventToken;
 import jerklib.Profile;
 import jerklib.Session;
 import jerklib.events.IRCEvent;
@@ -24,25 +25,19 @@ public class IRCClient implements IRCEventListener
 
 	public void receiveEvent(IRCEvent e)
 	{
-		/*EventToken token=new EventToken(e.getRawEventData());
-		System.out.println("command "+ token.command()+" --");
-		System.out.println("data "+token.data()+" --");
-		System.out.println("hostname "+token.hostName()+" --");
-		System.out.println("nick "+token.nick()+" --");
-		System.out.println("numeric "+token.numeric()+" --");
-		System.out.println("prefix "+token.prefix()+ " --");
-		System.out.println("username "+token.userName()+" --");
-		System.out.println("tostring "+token.args().toString()+" --");
-		System.out.println();*/
+		EventToken token=new EventToken(e.getRawEventData());
 		Logger.logInfo(e.getType() + " : " + e.getRawEventData());
+		if(token.prefix().contains("Lemming!stats@liberty-unleashed.co.uk"))
+			return;
 		if (e.getType() == Type.CONNECT_COMPLETE)
 		{
 			e.getSession().join(this.room);
 			this.s=e.getSession();
+			this.alertListener.connected();
 		}
 		else
 		{
-			if (e.getType()==Type.AWAY_EVENT||e.getType() == Type.NICK_IN_USE||e.getType() == Type.NOTICE || e.getType() == Type.SERVER_INFORMATION || (e.getType() == Type.DEFAULT && !e.getRawEventData().contains("KICK")) || e.getType() == Type.SERVER_VERSION_EVENT || e.getType() == Type.MOTD || e.getType() == Type.NICK_LIST_EVENT || e.getType() == Type.TOPIC)
+			if (e.getType()==Type.AWAY_EVENT||e.getType() == Type.NICK_IN_USE||e.getType() == Type.NOTICE || e.getType() == Type.SERVER_INFORMATION || (e.getType() == Type.DEFAULT && !e.getRawEventData().contains("KICK")) || e.getType() == Type.SERVER_VERSION_EVENT || e.getType() == Type.MOTD || e.getType() == Type.NICK_LIST_EVENT)
 			{
 				Logger.logInfo(e.getRawEventData());
 				return;
@@ -52,6 +47,7 @@ public class IRCClient implements IRCEventListener
 			if(e.getType()==Type.TOPIC)
 			{
 				this.messageListener.updateTopic();
+				this.alertListener.topicChange();
 				return;
 			}
 			if (e.getType() == Type.JOIN_COMPLETE)
@@ -90,9 +86,25 @@ public class IRCClient implements IRCEventListener
 				if (e.getType() == Type.DEFAULT && raw.contains("KICK"))
 				{
 					String kick = raw.substring(raw.indexOf("KICK")), reason = kick.substring(kick.indexOf(":") + 1);
-					message = "*"+kick.substring(6 + this.room.length(), kick.indexOf(":") - 1) + " was kicked by " + sender;
+					String kicked=kick.substring(6 + this.room.length(), kick.indexOf(":") - 1);
+					boolean you=false;
+					if(kicked.equals(getNick()))
+					{
+						kicked="You were";
+						you=true;
+					}
+					else
+						kicked=kicked+" was";
+					message = "*"+ kicked + " kicked by " + sender;
 					if (reason.length() > 0)
 						message += " (" + reason + ")";
+					if(you)
+					{
+						if(this.messageListener!=null)
+							this.messageListener.kicked();
+						if(this.alertListener!=null)
+							this.alertListener.kicked();
+					}
 				}
 				if (e.getType().toString().equals("MODE_EVENT"))
 				{
@@ -100,16 +112,16 @@ public class IRCClient implements IRCEventListener
 					{
 						String mode = raw.substring(raw.indexOf(this.channel.getName()) + this.channel.getName().length() + 1, raw.indexOf(this.channel.getName()) + this.channel.getName().length() + 3);
 						String modeChanged = raw.substring(raw.indexOf(this.channel.getName()) + this.channel.getName().length() + 4);
-						if (modeChanged.equals(this.nick))
+						if (modeChanged.equals(getNick()))
 							modeChanged = "you";
 						message = "TELL MOOMOOHK HE MUST CATCH " + mode;
 						if (mode.equals("+b"))
 							message = sender + " banned " + modeChanged;
 						if (mode.equals("-b"))
 							message = sender + " unbanned " + modeChanged;
-						if (mode.equals("+ho"))
+						if (mode.equals("+ho")||mode.equals("+h"))
 							message = sender + " promoted " + modeChanged + " to half operator";
-						if (mode.equals("-ho"))
+						if (mode.equals("-ho")||mode.equals("-h"))
 							message = sender + " demoted " + modeChanged + " from half operator";
 						if (mode.equals("+o"))
 							message = sender + " promoted " + modeChanged + " to operator";
@@ -232,6 +244,8 @@ public class IRCClient implements IRCEventListener
 							receipient=receipient.substring(0, receipient.indexOf(' '));
 							this.s.sayPrivate(receipient, pm);
 						}
+						if(message.toLowerCase().contains("/topic"))
+							this.channel.setTopic(message.substring(i).trim());
 						break;
 					}
 				}
@@ -248,6 +262,8 @@ public class IRCClient implements IRCEventListener
 					this.s.setAway("");
 				if(message.toLowerCase().contains("/nick"))
 					this.s.changeNick(nick);
+				if(message.toLowerCase().contains("/cleartopic"))
+					this.channel.setTopic("");
 			}
 		}
 		else
@@ -310,5 +326,32 @@ public class IRCClient implements IRCEventListener
 	public List<String> getUserList()
 	{
 		return this.channel.getNicks();
+	}
+
+	public void quitMessageListener()
+	{
+		this.messageListener.quit();
+	}
+	public void quit()
+	{
+		this.messageListener.disconnect();
+		this.conman.quit();
+	}
+	public void connectAlertListener()
+	{
+		this.alertListener.connected();
+	}
+	@SuppressWarnings("unused")
+	private void printEvent(EventToken token)
+	{
+		System.out.println("command "+ token.command()+" --");
+		System.out.println("data "+token.data()+" --");
+		System.out.println("hostname "+token.hostName()+" --");
+		System.out.println("nick "+token.nick()+" --");
+		System.out.println("numeric "+token.numeric()+" --");
+		System.out.println("prefix "+token.prefix()+ " --");
+		System.out.println("username "+token.userName()+" --");
+		System.out.println("tostring "+token.args().toString()+" --");
+		System.out.println();
 	}
 }

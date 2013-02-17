@@ -48,6 +48,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.JToggleButton;
 import javax.swing.ProgressMonitor;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
@@ -113,7 +114,8 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 	private JPanel footer = new JPanel();
 	private JLabel footerBanner = new JLabel(new ImageIcon(this.getClass().getResource("/image/banner_minelord.png")));
 	private JLabel tpInstallLocLbl = new JLabel();
-	private JButton launch = new JButton(), edit = new JButton(), donate = new JButton(), serverbutton = new JButton(), mapInstall = new JButton(), serverMap = new JButton(), tpInstall = new JButton(), openChatInBrowser=new JButton();
+	private JToggleButton showTopic=new JToggleButton(), showUserlist=new JToggleButton();
+	private JButton launch = new JButton(), edit = new JButton(), donate = new JButton(), serverbutton = new JButton(), mapInstall = new JButton(), serverMap = new JButton(), tpInstall = new JButton(), openChatInBrowser=new JButton(), closeChat=new JButton("Close chat");
 
 	private static String[] dropdown_ =
 	{ "Select Profile", "Create Profile" };
@@ -221,14 +223,14 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 				{
 					dynamicDir.mkdirs();
 				}
-				
+
 				new TestingConnectionThing();
 				if(TestingConnectionThing.offline)
 				{
 					ConnectionProblemDialog cpd=new ConnectionProblemDialog();
 					cpd.setVisible(true);
 				}
-				
+
 				userManager = new UserManager(new File(OSUtils.getDynamicStorageLocation(), "logindata"));
 				con = new LauncherConsole();
 				if (Settings.getSettings().getConsoleActive())
@@ -375,12 +377,36 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 				}
 			}
 		});
+		showTopic=new JToggleButton("Show topic");
+		showTopic.setBounds(550, 20, 100, 30);
+		showTopic.getModel().setSelected(true);
+		showTopic.setVisible(false);
+		showTopic.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent paramActionEvent)
+			{
+				IRCPane.showTopic(showTopic.isSelected());
+			}
+		});
+		showUserlist=new JToggleButton("Show userlist");
+		showUserlist.setBounds(660, 20, 100, 30);
+		showUserlist.getModel().setSelected(true);
+		showUserlist.setVisible(false);
+		showUserlist.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent paramActionEvent)
+			{
+				IRCPane.showUserList(showUserlist.isSelected());
+			}
+		});
 		openChatInBrowser=new JButton("Open chat in browser");
-		openChatInBrowser.setBounds(480, 20, 180, 30);
+		openChatInBrowser.setBounds(380, 20, 160, 30);
 		openChatInBrowser.setVisible(false);
 		openChatInBrowser.addActionListener(new ActionListener()
 		{
-			
+
 			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
@@ -389,7 +415,7 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 					Desktop desktop = Desktop.getDesktop();
 					try
 					{
-						desktop.browse(new URI("http://liberty-unleashed.co.uk:9090/?nick="+(IRCPane.nick!=null&&IRCPane.nick.length()>0?IRCPane.nick:"Guest.")+"&channels=Minelord-Pack&prompt=1"));
+						desktop.browse(new URI("http://liberty-unleashed.co.uk:9090/?nick="+(IRCPane.nick!=null&&IRCPane.nick.length()>0?IRCPane.nick:"INeedHelp..")+"&channels=Minelord-Pack&prompt=1"));
 					}
 					catch (Exception exc)
 					{
@@ -400,6 +426,19 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 				{
 					Logger.logWarn("Could not open url, not supported");
 				}
+			}
+		});
+		closeChat=new JButton("Close chat");
+		closeChat.setBounds(550, 20, 100, 30);
+		closeChat.setVisible(false);
+		closeChat.addActionListener(new ActionListener()
+		{
+
+			@Override
+			public void actionPerformed(ActionEvent paramActionEvent)
+			{
+				IRCPane.client.quitMessageListener();
+				closeChat.setVisible(false);
 			}
 		});
 		users.setBounds(550, 20, 150, 30);
@@ -542,6 +581,9 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 		footer.add(tpInstall);
 		footer.add(tpInstallLocation);
 		footer.add(openChatInBrowser);
+		footer.add(closeChat);
+		footer.add(showTopic);
+		footer.add(showUserlist);
 
 		newsPane = new NewsPane();
 		modPacksPane = new ModpacksPane();
@@ -1115,8 +1157,31 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 			disableMainButtons();
 			disableTextureButtons();
 			openChatInBrowser.setVisible(true);
+			if(IRCPane.quit)
+				closeChat.setVisible(true);
+			else
+				closeChat.setVisible(false);
+			if(IRCPane.status.equals("Connected"))
+			{
+				showTopic.setVisible(true);
+				showUserlist.setVisible(true);
+			}
+			else
+			{
+				showTopic.setVisible(false);
+				showUserlist.setVisible(false);
+			}
+			if(IRCPane.topic==null||IRCPane.topic.getText().length()==0)
+				showTopic.setEnabled(false);
+			else
+				showTopic.setEnabled(true);
+			donate.setBounds(290, 20, 80, 30);
 			break;
 		case TEXTURE:
+			showTopic.setVisible(false);
+			showUserlist.setVisible(false);
+			donate.setBounds(390, 20, 80, 30);
+			closeChat.setVisible(false);
 			openChatInBrowser.setVisible(false);
 			tpInstall.setVisible(true);
 			tpInstallLocation.setVisible(true);
@@ -1124,6 +1189,10 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 			disableMapButtons();
 			break;
 		default:
+			showTopic.setVisible(false);
+			showUserlist.setVisible(false);
+			donate.setBounds(390, 20, 80, 30);
+			closeChat.setVisible(false);
 			openChatInBrowser.setVisible(false);
 			launch.setVisible(true);
 			edit.setEnabled(users.getSelectedIndex() > 1);
@@ -1249,7 +1318,7 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 
 		return i;
 	}
-	
+
 	public static void testIRC()
 	{
 		/*IRCBot bot=new IRCBot("irc.liberty-unleashed.co.uk", "minelord", "botbothk");
@@ -1265,12 +1334,38 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 		if(currentPane!=Panes.CHAT)
 			tabbedPane.setIconAt(3, new ImageIcon(this.getClass().getResource("/image/tabs/chat_alert.png")));
 	}
-	
+
 	public void showChat()
 	{
 		tabbedPane.setSelectedIndex(3);
 		((ILauncherPane) tabbedPane.getComponent(3)).onVisible();
 		currentPane = Panes.values()[tabbedPane.getSelectedIndex()];
 		tabbedPane.requestFocus();
+	}
+	public void kicked()
+	{
+		if(currentPane==Panes.CHAT)
+		{
+			closeChat.setVisible(true);
+			updateFooter();
+		}
+	}
+
+	@Override
+	public void connected()
+	{
+		if(currentPane==Panes.CHAT)
+		{
+			showTopic.setVisible(true);
+			showUserlist.setVisible(true);
+			updateFooter();
+		}
+	}
+	public void topicChange()
+	{
+		if(IRCPane.topic.getText().length()==0)
+			showTopic.setEnabled(false);
+		else
+			showTopic.setEnabled(true);
 	}
 }
