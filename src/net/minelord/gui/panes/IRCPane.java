@@ -333,12 +333,15 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 				{
 					if (client.parseCommand(message).length()==0)
 						return;
-					String color=sendColor, actualMessage=message;
+					String color=sendColor, actualMessage=client.parseCommand(message);
 					input.setText("");
 					if(client.parseCommand(message).charAt(0)=='*')
 						color=actionColor;
 					if (client.parseCommand(message).charAt(0) == '-')
+					{
 						color=errorColor;
+						actualMessage=actualMessage.substring(1);
+					}
 					if(client.parseCommand(message).charAt(0)=='[')
 						color=pmColor;
 					if (client.parseCommand(message)!=null&&client.parseCommand(message).length() == 0)
@@ -346,7 +349,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 						input.setText("");
 						return;
 					}
-					IRCLog.add("<font color=\"" + color + "\">" + escapeHtml3(client.parseCommand(actualMessage)).replaceAll("\"<\"", "<") + "</font><br>");
+					IRCLog.add("<font color=\"" + color + "\">" + escapeHtml3(actualMessage).replaceAll("\"<\"", "<") + "</font><br>");
 					refreshLogs();
 				}
 			}
@@ -487,7 +490,8 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 	synchronized public static void refreshLogs()
 	{
 		doc = new HTMLDocument();
-		text.setDocument(doc);
+		if(!text.getDocument().equals(doc))
+			text.setDocument(doc);
 		StringBuilder logHTML = new StringBuilder();
 		for (String message : IRCLog)
 		{

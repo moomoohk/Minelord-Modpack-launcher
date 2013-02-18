@@ -1,5 +1,6 @@
 package net.minelord.util;
 
+import java.nio.channels.NotYetConnectedException;
 import java.util.List;
 
 import jerklib.Channel;
@@ -41,17 +42,42 @@ public class IRCClient implements IRCEventListener
 				{
 					return Type.EXCEPTION;
 				}
-				
+
 				@Override
 				public Session getSession()
 				{
 					return s;
 				}
-				
+
 				@Override
 				public String getRawEventData()
 				{
 					return "No Internet connection!";
+				}
+			};
+			receiveEvent(event);
+			return;
+		}
+		catch(ArrayIndexOutOfBoundsException ex)
+		{
+			IRCEvent event=new IRCEvent()
+			{
+				@Override
+				public Type getType()
+				{
+					return Type.EXCEPTION;
+				}
+
+				@Override
+				public Session getSession()
+				{
+					return s;
+				}
+
+				@Override
+				public String getRawEventData()
+				{
+					return "Lost connection!";
 				}
 			};
 			receiveEvent(event);
@@ -88,12 +114,6 @@ public class IRCClient implements IRCEventListener
 				this.messageListener.connected();
 				return;
 			}
-			if (e.getType() == Type.CONNECTION_LOST)
-			{
-				//conman.quit();
-				//this.messageListener.disconnect();
-				return;
-			}
 			try
 			{
 				String raw = e.getRawEventData();
@@ -103,6 +123,13 @@ public class IRCClient implements IRCEventListener
 				{
 					message="-"+raw;
 					alertAlertListener();
+				}
+				if (e.getType() == Type.CONNECTION_LOST)
+				{
+					message="-"+raw;
+					alertAlertListener();
+					this.messageListener.kicked();
+					this.alertListener.kicked();
 				}
 				if(e.getType()==Type.EXCEPTION)
 				{
@@ -121,11 +148,20 @@ public class IRCClient implements IRCEventListener
 				if (e.getType() == Type.CTCP_EVENT)
 					message = "*" + sender + raw.substring(raw.indexOf("ACTION") + 6);
 				if (e.getType() == Type.JOIN)
+				{
 					message = "*" + sender + " joined the room";
+					this.messageListener.updateUserList();
+				}
 				if (e.getType() == Type.QUIT)
-					message = "*" + sender + " quit";
+				{
+					message = "*" + sender + " quit"+(message.substring(message.indexOf("QUIT :")+6).trim().length()>0?" ("+message.substring(message.indexOf("QUIT :")+6)+")":"");
+					this.messageListener.updateUserList();
+				}
 				if (e.getType() == Type.PART)
+				{
 					message = "*" + sender + " parted";
+					this.messageListener.updateUserList();
+				}
 				if (e.getType() == Type.DEFAULT && raw.contains("KICK"))
 				{
 					String kick = raw.substring(raw.indexOf("KICK")), reason = kick.substring(kick.indexOf(":") + 1);
@@ -141,6 +177,7 @@ public class IRCClient implements IRCEventListener
 					message = "*" + kicked + " kicked by " + sender;
 					if (reason.length() > 0)
 						message += " (" + reason + ")";
+					this.messageListener.updateUserList();
 					if (you)
 					{
 						if (this.messageListener != null)
@@ -203,7 +240,7 @@ public class IRCClient implements IRCEventListener
 			catch (Exception ex)
 			{
 				if (messageListener != null)
-					messageListener.receiveMessage("-HURRRR");
+					messageListener.receiveMessage("-ERROR DISPLAYING MESSAGE (Check console)");
 				System.err.println("broke: " + e.getType() + " : " + e.getRawEventData());
 				ex.printStackTrace();
 			}
@@ -218,6 +255,11 @@ public class IRCClient implements IRCEventListener
 			{
 				if (message.charAt(i) == ' ')
 				{
+					if(message.toLowerCase().contains("/isonline"))
+					{
+						boolean isOnline=this.channel.getNicks().contains(message.substring(i).trim());
+						return "*"+message.substring(i).trim()+" is "+(isOnline?"":"not")+" online";
+					}
 					if (message.toLowerCase().contains("/me"))
 						return "*" + getNick() + "" + message.substring(i);
 					if (message.toLowerCase().contains("/quit"))
@@ -264,6 +306,8 @@ public class IRCClient implements IRCEventListener
 			}
 			if(message.toLowerCase().contains("/break"))
 				return "";
+			if(message.toLowerCase().contains("/isonline"))
+				return "-Missing parameters!";
 		}
 		return null;
 	}
@@ -288,6 +332,7 @@ public class IRCClient implements IRCEventListener
 							this.conman.quit(message.substring(i));
 							this.messageListener.disconnect();
 							this.messageListener.quit();
+							this.alertListener.kicked();
 						}
 						if (message.toLowerCase().contains("/join"))
 						{
@@ -321,8 +366,38 @@ public class IRCClient implements IRCEventListener
 			{
 				if (message.toLowerCase().contains("/quit"))
 				{
-					this.conman.quit();
-					this.messageListener.quit();
+					try
+					{
+						this.conman.quit();
+						this.messageListener.disconnect();
+						this.messageListener.quit();
+						this.alertListener.kicked();
+					}
+					catch(NotYetConnectedException ex)
+					{
+						IRCEvent event=new IRCEvent()
+						{
+							@Override
+							public Type getType()
+							{
+								return Type.CONNECTION_LOST;
+							}
+
+							@Override
+							public Session getSession()
+							{
+								return s;
+							}
+
+							@Override
+							public String getRawEventData()
+							{
+								return "No Internet connection!";
+							}
+						};
+						receiveEvent(event);
+						return;
+					}
 				}
 				if (message.toLowerCase().contains("/back"))
 					this.s.unsetAway();
@@ -341,13 +416,13 @@ public class IRCClient implements IRCEventListener
 						{
 							return Type.ERROR;
 						}
-						
+
 						@Override
 						public Session getSession()
 						{
 							return s;
 						}
-						
+
 						@Override
 						public String getRawEventData()
 						{

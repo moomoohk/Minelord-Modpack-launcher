@@ -121,7 +121,7 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 	{ "Select Profile", "Create Profile" };
 	private static JComboBox users, tpInstallLocation, mapInstallLocation;
 	private static LaunchFrame instance = null;
-	private static String version = "1.2.3";
+	private static String version = "1.0";
 
 	public final JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 

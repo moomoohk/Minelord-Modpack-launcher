@@ -19,8 +19,6 @@ package net.minelord.util;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 
-import net.minelord.log.Logger;
-
 public class CryptoUtils
 {
 	public static String decrypt(String str, byte[] key)
