@@ -33,9 +33,9 @@ public class IRCClient implements IRCEventListener
 			if (token.prefix().contains("Lemming!stats@liberty-unleashed.co.uk"))
 				return;
 		}
-		catch(NullPointerException ex)
+		catch (NullPointerException ex)
 		{
-			IRCEvent event=new IRCEvent()
+			IRCEvent event = new IRCEvent()
 			{
 				@Override
 				public Type getType()
@@ -58,9 +58,9 @@ public class IRCClient implements IRCEventListener
 			receiveEvent(event);
 			return;
 		}
-		catch(ArrayIndexOutOfBoundsException ex)
+		catch (StringIndexOutOfBoundsException ex)
 		{
-			IRCEvent event=new IRCEvent()
+			IRCEvent event = new IRCEvent()
 			{
 				@Override
 				public Type getType()
@@ -119,24 +119,24 @@ public class IRCClient implements IRCEventListener
 				String raw = e.getRawEventData();
 				String sender = raw.substring(1, raw.indexOf('!'));
 				String message = "";
-				if(e.getType()==Type.ERROR)
+				if (e.getType() == Type.ERROR)
 				{
-					message="-"+raw;
+					message = "-" + raw;
 					alertAlertListener();
 				}
 				if (e.getType() == Type.CONNECTION_LOST)
 				{
-					message="-"+raw;
+					message = "-" + raw;
 					alertAlertListener();
 					this.messageListener.kicked();
-					this.alertListener.kicked();
+					this.alertListener.disconnected();
 				}
-				if(e.getType()==Type.EXCEPTION)
+				if (e.getType() == Type.EXCEPTION)
 				{
-					message="-"+raw;
+					message = "-" + raw;
 					alertAlertListener();
 					this.messageListener.kicked();
-					this.alertListener.kicked();
+					this.alertListener.disconnected();
 				}
 				if (e.getType() == Type.CHANNEL_MESSAGE)
 					message = sender + ": " + raw.substring(raw.indexOf(this.channel.getName()) + this.channel.getName().length() + 2);
@@ -149,12 +149,13 @@ public class IRCClient implements IRCEventListener
 					message = "*" + sender + raw.substring(raw.indexOf("ACTION") + 6);
 				if (e.getType() == Type.JOIN)
 				{
+					//IRCPane.sendMessage(sender+": TRACING YOUR IP...");
 					message = "*" + sender + " joined the room";
 					this.messageListener.updateUserList();
 				}
 				if (e.getType() == Type.QUIT)
 				{
-					message = "*" + sender + " quit"+(message.substring(message.indexOf("QUIT :")+6).trim().length()>0?" ("+message.substring(message.indexOf("QUIT :")+6)+")":"");
+					message = "*" + sender + " quit" + (raw.substring(raw.indexOf("QUIT :") + 6).trim().length() > 0 ? " (" + raw.substring(raw.indexOf("QUIT :") + 6).trim() + ")" : "");
 					this.messageListener.updateUserList();
 				}
 				if (e.getType() == Type.PART)
@@ -183,7 +184,7 @@ public class IRCClient implements IRCEventListener
 						if (this.messageListener != null)
 							this.messageListener.kicked();
 						if (this.alertListener != null)
-							this.alertListener.kicked();
+							this.alertListener.disconnected();
 					}
 				}
 				if (e.getType().toString().equals("MODE_EVENT"))
@@ -225,17 +226,8 @@ public class IRCClient implements IRCEventListener
 				}
 				if (message.contains("€¦"))
 					message = message.replace("€¦", "...");
-				// System.err.println(e.getType() + " : " + raw);
-				/*
-				 * if (containsNick(message)) System.err.println(message); else
-				 * System.out.println(message); // part
-				 */
 				if (messageListener != null)
 					messageListener.receiveMessage(message);
-				/*
-				 * else if (containsNick(message)) System.err.println(message);
-				 * else System.out.println(message);
-				 */
 			}
 			catch (Exception ex)
 			{
@@ -255,13 +247,13 @@ public class IRCClient implements IRCEventListener
 			{
 				if (message.charAt(i) == ' ')
 				{
-					if(message.toLowerCase().contains("/isonline"))
+					if (message.toLowerCase().contains("/isonline"))
 					{
-						boolean isOnline=this.channel.getNicks().contains(message.substring(i).trim());
-						return "*"+message.substring(i).trim()+" is "+(isOnline?"":"not")+" online";
+						boolean isOnline = this.channel.getNicks().contains(message.substring(i).trim());
+						return "*" + message.substring(i).trim() + " is " + (isOnline ? "" : "not") + " online";
 					}
 					if (message.toLowerCase().contains("/me"))
-						return "*" + getNick() + "" + message.substring(i);
+						return "*" + getNick() + message.substring(i);
 					if (message.toLowerCase().contains("/quit"))
 						return "Quitting...";
 					if (message.toLowerCase().contains("/join"))
@@ -271,7 +263,7 @@ public class IRCClient implements IRCEventListener
 						if (message.substring(i + 1).equals(getNick()))
 							return "";
 						else
-							return "You changed your nick to " + message.substring(i + 1);
+							return "*You changed your nick to " + message.substring(i + 1);
 					}
 					if (message.contains("/msg"))
 					{
@@ -300,13 +292,13 @@ public class IRCClient implements IRCEventListener
 			if (message.toLowerCase().contains("/nick"))
 			{
 				if (!this.nick.equals(getNick()))
-					return "You changed your nick to " + this.nick;
+					return "*You changed your nick to " + this.nick;
 				else
 					return "";
 			}
-			if(message.toLowerCase().contains("/break"))
+			if (message.toLowerCase().contains("/break"))
 				return "";
-			if(message.toLowerCase().contains("/isonline"))
+			if (message.toLowerCase().contains("/isonline"))
 				return "-Missing parameters!";
 		}
 		return null;
@@ -314,6 +306,8 @@ public class IRCClient implements IRCEventListener
 
 	public void send(String message)
 	{
+		if (message == null || message.length() == 0)
+			return;
 		if (message.charAt(0) == '/')
 		{
 			if (message.contains(" "))
@@ -321,10 +315,12 @@ public class IRCClient implements IRCEventListener
 				{
 					if (message.charAt(i) == ' ')
 					{
+						if(message.toLowerCase().contains("/whois"))
+							this.s.whois(message.substring(i));
 						if (message.toLowerCase().contains("/away"))
 							this.s.setAway(message.substring(i));
 						if (message.toLowerCase().contains("/me"))
-							this.channel.action(message.substring(i));
+							this.channel.action(message.substring(i).trim());
 						if (message.toLowerCase().contains("/nick"))
 							this.s.changeNick(message.substring(i).trim());
 						if (message.toLowerCase().contains("/quit"))
@@ -332,7 +328,7 @@ public class IRCClient implements IRCEventListener
 							this.conman.quit(message.substring(i));
 							this.messageListener.disconnect();
 							this.messageListener.quit();
-							this.alertListener.kicked();
+							this.alertListener.disconnected();
 						}
 						if (message.toLowerCase().contains("/join"))
 						{
@@ -371,11 +367,11 @@ public class IRCClient implements IRCEventListener
 						this.conman.quit();
 						this.messageListener.disconnect();
 						this.messageListener.quit();
-						this.alertListener.kicked();
+						this.alertListener.disconnected();
 					}
-					catch(NotYetConnectedException ex)
+					catch (NotYetConnectedException ex)
 					{
-						IRCEvent event=new IRCEvent()
+						IRCEvent event = new IRCEvent()
 						{
 							@Override
 							public Type getType()
@@ -407,9 +403,9 @@ public class IRCClient implements IRCEventListener
 					this.s.changeNick(nick);
 				if (message.toLowerCase().contains("/cleartopic"))
 					this.channel.setTopic("");
-				if(message.toLowerCase().contains("/break"))
+				if (message.toLowerCase().contains("/break"))
 				{
-					IRCEvent event=new IRCEvent()
+					IRCEvent event = new IRCEvent()
 					{
 						@Override
 						public Type getType()

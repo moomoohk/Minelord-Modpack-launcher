@@ -132,7 +132,7 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 	public TexturepackPane tpPane;
 	public OptionsPane optionsPane;
 
-	public static int buildNumber = 123;
+	public static int buildNumber = 0;
 	public static boolean noConfig = false;
 	public static LauncherConsole con;
 	public static String tempPass = "";
@@ -378,7 +378,7 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 			}
 		});
 		showTopic=new JToggleButton("Show topic");
-		showTopic.setBounds(550, 20, 100, 30);
+		showTopic.setBounds(550, 5, 120, 30);
 		showTopic.getModel().setSelected(true);
 		showTopic.setVisible(false);
 		showTopic.addActionListener(new ActionListener()
@@ -390,7 +390,7 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 			}
 		});
 		showUserlist=new JToggleButton("Show userlist");
-		showUserlist.setBounds(660, 20, 120, 30);
+		showUserlist.setBounds(550, 35, 120, 30);
 		showUserlist.getModel().setSelected(true);
 		showUserlist.setVisible(false);
 		showUserlist.addActionListener(new ActionListener()
@@ -478,6 +478,8 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 
 		launch.setText(I18N.getLocaleString("LAUNCH_BUTTON"));
 		launch.setBounds(711, 20, 100, 30);
+		launch.setEnabled(false);
+		launch.setToolTipText("Not ready yet!");
 		launch.addActionListener(new ActionListener()
 		{
 			@Override
@@ -1342,7 +1344,7 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 		currentPane = Panes.values()[tabbedPane.getSelectedIndex()];
 		tabbedPane.requestFocus();
 	}
-	public void kicked()
+	public void disconnected()
 	{
 		if(currentPane==Panes.CHAT)
 		{
