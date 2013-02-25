@@ -10,7 +10,7 @@ public interface IRCMessageListener
 	public void connect();
 	public void connected();
 	public void updateTopic();
-	public void updateUserList();
+	public void updateUserList(int sort);
 	public void kicked();
 }
 

@@ -19,6 +19,7 @@ package net.minelord.gui.panes;
 import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml3;
 
 import java.awt.Color;
+import java.awt.List;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -33,6 +34,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -86,7 +88,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 	public static String actionColor = "#5194ED", receiveColor = "#858585", sendColor = "#A1A1A1", nickalertColor = "#F74848", errorColor = "red", pmColor = "#B225CF";
 	public static boolean quit = false, showTopic = true, showUserList = true;
 	public static ArrayList<String> lastCommands = new ArrayList<String>();
-	public static int lastCommandSelector = 0;
+	public static int lastCommandSelector = 0, sortType=0;
 	public static HashMap<Character, String> colorMap = new HashMap<Character, String>();
 
 	static
@@ -253,9 +255,34 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 		repaint();
 	}
 
-	public void updateUserList()
+	public void updateUserList(int type)
 	{
-		userList.setListData(client.getUserList().toArray());
+		sortType=type;
+		switch(sortType)
+		{
+		case 0:
+			userList.setListData(client.getUserList().toArray());
+			break;
+		case 1:
+			Object[] temp=client.getUserList().toArray();
+			Arrays.sort(temp);
+			userList.setListData(temp);
+			break;
+		case 2:
+			ArrayList<String>nicks=new ArrayList<String>();
+			for(String nick:client.getOps())
+				nicks.add(nick);
+			for(String nick:client.getHops())
+				nicks.add(nick);
+			for(String nick:client.getUserList())
+				if(!nicks.contains(nick))
+					nicks.add(nick);
+			userList.setListData(nicks.toArray());
+			break;
+		case 3:
+			userList.setListData(new Object[0]);
+			break;
+		}
 	}
 
 	public void connected()
@@ -294,6 +321,10 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 		final JPopupMenu userPopup = new JPopupMenu();
 		JLabel help = new JLabel("Politely ask for help");
 		JLabel message = new JLabel("Message");
+		JLabel sortNormal=new JLabel("Normal");
+		JLabel sortAlphabetical=new JLabel("Alphabetical");
+		JLabel sortRoles=new JLabel("Roles");
+		
 		help.addMouseListener(new MouseAdapter()
 		{
 			public void mousePressed(MouseEvent e)
@@ -319,8 +350,39 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 				input.requestFocus();
 			}
 		});
+		sortNormal.addMouseListener(new MouseAdapter()
+		{
+			@Override
+			public void mouseReleased(MouseEvent paramMouseEvent)
+			{
+				userPopup.setVisible(false);
+				updateUserList(0);
+			}
+		});
+		sortAlphabetical.addMouseListener(new MouseAdapter()
+		{
+			@Override
+			public void mouseReleased(MouseEvent paramMouseEvent)
+			{
+				userPopup.setVisible(false);
+				updateUserList(1);
+			}
+		});
+		sortRoles.addMouseListener(new MouseAdapter()
+		{
+			@Override
+			public void mouseReleased(MouseEvent paramMouseEvent)
+			{
+				userPopup.setVisible(false);
+				updateUserList(2);
+			}
+		});
 		userPopup.add(help);
 		userPopup.add(message);
+		userPopup.add(sortNormal);
+		userPopup.add(sortAlphabetical);
+		userPopup.add(sortRoles);
+		
 		userList.addMouseListener(new MouseAdapter()
 		{
 			public void mousePressed(MouseEvent e)
@@ -357,7 +419,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 				}
 			}
 		});
-		userPopup.add(copy);
+		textPopup.add(copy);
 		text.addMouseListener(new MouseAdapter()
 		{
 			public void mousePressed(MouseEvent e)

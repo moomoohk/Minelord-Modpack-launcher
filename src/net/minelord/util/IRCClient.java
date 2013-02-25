@@ -143,7 +143,7 @@ public class IRCClient implements IRCEventListener
 				if (e.getType() == Type.NICK_CHANGE)
 				{
 					message = "*" + sender + " changed their nick to " + raw.substring(raw.indexOf("NICK") + 5);
-					this.messageListener.updateUserList();
+					this.messageListener.updateUserList(IRCPane.sortType);
 				}
 				if (e.getType() == Type.CTCP_EVENT)
 					message = "*" + sender + raw.substring(raw.indexOf("ACTION") + 6);
@@ -151,17 +151,17 @@ public class IRCClient implements IRCEventListener
 				{
 					//IRCPane.sendMessage(sender+": TRACING YOUR IP...");
 					message = "*" + sender + " joined the room";
-					this.messageListener.updateUserList();
+					this.messageListener.updateUserList(IRCPane.sortType);
 				}
 				if (e.getType() == Type.QUIT)
 				{
 					message = "*" + sender + " quit" + (raw.substring(raw.indexOf("QUIT :") + 6).trim().length() > 0 ? " (" + raw.substring(raw.indexOf("QUIT :") + 6).trim() + ")" : "");
-					this.messageListener.updateUserList();
+					this.messageListener.updateUserList(IRCPane.sortType);
 				}
 				if (e.getType() == Type.PART)
 				{
 					message = "*" + sender + " parted";
-					this.messageListener.updateUserList();
+					this.messageListener.updateUserList(IRCPane.sortType);
 				}
 				if (e.getType() == Type.DEFAULT && raw.contains("KICK"))
 				{
@@ -178,7 +178,7 @@ public class IRCClient implements IRCEventListener
 					message = "*" + kicked + " kicked by " + sender;
 					if (reason.length() > 0)
 						message += " (" + reason + ")";
-					this.messageListener.updateUserList();
+					this.messageListener.updateUserList(IRCPane.sortType);
 					if (you)
 					{
 						if (this.messageListener != null)
@@ -221,6 +221,7 @@ public class IRCClient implements IRCEventListener
 				}
 				if (e.getType() == Type.PRIVATE_MESSAGE)
 				{
+					this.messageListener.updateUserList(1);
 					alertAlertListener();
 					message = "[" + sender + " -> You]: " + raw.substring(raw.indexOf(getNick() + " :") + getNick().length() + 2);
 				}
@@ -512,7 +513,14 @@ public class IRCClient implements IRCEventListener
 	{
 		this.alertListener.connected();
 	}
-
+	public List<String> getOps()
+	{
+		return this.channel.getNicksForMode(null, 'o');
+	}
+	public List<String> getHops()
+	{
+		return this.channel.getNicksForMode(null, 'h');
+	}
 	@SuppressWarnings("unused")
 	private void printEvent(EventToken token)
 	{

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 public class IRCCommand
 {
 	public static ArrayList<IRCCommand> commands=new ArrayList<IRCCommand>();
-	private String command, message, help;
+	private String command, message, help, params;
 	private boolean needsParams;
 	private Runnable execute;
 	public IRCCommand(String command, String message, String help, boolean needsParams)
@@ -15,6 +15,7 @@ public class IRCCommand
 		this.message=message;
 		this.help=help;
 		this.needsParams=needsParams;
+		this.params=null;
 		this.execute=null;
 	}
 	public static void add(IRCCommand command)
@@ -39,6 +40,10 @@ public class IRCCommand
 	public boolean needsParams()
 	{
 		return needsParams;
+	}
+	public void setParams(String params)
+	{
+		this.params=params;
 	}
 	public Runnable getExecute()
 	{
