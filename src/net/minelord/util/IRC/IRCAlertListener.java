@@ -1,5 +1,5 @@
 
-package net.minelord.util;
+package net.minelord.util.IRC;
 
 public interface IRCAlertListener
 {

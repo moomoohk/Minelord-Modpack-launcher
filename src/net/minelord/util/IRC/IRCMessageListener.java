@@ -1,5 +1,5 @@
 
-package net.minelord.util;
+package net.minelord.util.IRC;
 
 
 public interface IRCMessageListener
@@ -12,5 +12,6 @@ public interface IRCMessageListener
 	public void updateTopic();
 	public void updateUserList(int sort);
 	public void kicked();
+	public void clearChat();
 }
 

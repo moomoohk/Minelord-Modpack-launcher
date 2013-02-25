@@ -19,7 +19,6 @@ package net.minelord.gui.panes;
 import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml3;
 
 import java.awt.Color;
-import java.awt.List;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -60,10 +59,17 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
 import net.minelord.log.Logger;
-import net.minelord.util.IRCClient;
-import net.minelord.util.IRCCommand;
-import net.minelord.util.IRCMessageListener;
 import net.minelord.util.OSUtils;
+import net.minelord.util.IRC.IRCClient;
+import net.minelord.util.IRC.IRCCommand;
+import net.minelord.util.IRC.IRCMessageListener;
+import net.minelord.util.IRC.commands.ActionIRCCommand;
+import net.minelord.util.IRC.commands.ClearChatIRCCommand;
+import net.minelord.util.IRC.commands.DebugIRCCommand;
+import net.minelord.util.IRC.commands.HelpIRCCommand;
+import net.minelord.util.IRC.commands.NickIRCCommand;
+import net.minelord.util.IRC.commands.PrivMessageIRCCommand;
+import net.minelord.util.IRC.commands.ReplyIRCCommand;
 
 public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 {
@@ -324,7 +330,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 		JLabel sortNormal=new JLabel("Normal");
 		JLabel sortAlphabetical=new JLabel("Alphabetical");
 		JLabel sortRoles=new JLabel("Roles");
-		
+
 		help.addMouseListener(new MouseAdapter()
 		{
 			public void mousePressed(MouseEvent e)
@@ -382,7 +388,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 		userPopup.add(sortNormal);
 		userPopup.add(sortAlphabetical);
 		userPopup.add(sortRoles);
-		
+
 		userList.addMouseListener(new MouseAdapter()
 		{
 			public void mousePressed(MouseEvent e)
@@ -438,25 +444,32 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 
 	public static void sendMessage(String message)
 	{
-		for (int i = 0; i < message.length(); i++)
+		/*for (int i = 0; i < message.length(); i++)
 			for (Entry<Character, String> entry : colorMap.entrySet())
 				if (("" + topic.getText().charAt(i)).equals(entry.getKey()))
-					System.out.println(entry.getValue());
-		client.send(message);
+					System.out.println(entry.getValue());*/
 		if (message.trim().length() > 0)
 		{
 			if (message.charAt(0) == '/')
 			{
-				String[] params=IRCCommand.parseParams(message);
-				if (message.contains(" "))
-					for (int i = 0; i < message.length(); i++)
-					{
-						if (message.charAt(i) == ' ')
-						{
-							String command=message.substring(i+1);
-						}
-					}
-				if (client.parseCommand(message) == null)
+				message=message.trim();
+				IRCCommand command=IRCCommand.getCommand(IRCCommand.parseCommand(message));
+				if(command==null)
+				{
+					IRCLog.add("<font color=\"" + errorColor + "\">" + escapeHtml3("Unknown command!").replaceAll("\"<\"", "<") + "</font><br>");
+					refreshLogs();
+					return;
+				}
+				command.checkAndExecute(client, IRCCommand.parseParams(message));
+				if(command.getMessage()!=null)
+				{
+					String color=command.getColor();
+					if(color==null)
+						color=sendColor;
+					IRCLog.add("<font color=\"" + color + "\">" + (!command.containsHTML()?escapeHtml3(command.getMessage()):command.getMessage()) + "</font><br>");
+					refreshLogs();
+				}
+				/*if (client.parseCommand(message) == null)
 				{
 					IRCLog.add("<font color=\"" + errorColor + "\">" + escapeHtml3("Unknown command!").replaceAll("\"<\"", "<") + "</font><br>");
 					refreshLogs();
@@ -484,10 +497,11 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 					}
 					IRCLog.add("<font color=\"" + color + "\">" + escapeHtml3(actualMessage).replaceAll("\"<\"", "<") + "</font><br>");
 					refreshLogs();
-				}
+				}*/
 			}
 			else
 			{
+				client.send(message);
 				IRCLog.add("<font color=\"" + sendColor + "\">" + escapeHtml3(client.getNick() + ": " + message).replaceAll("\"<\"", "<") + "</font><br>");
 				refreshLogs();
 			}
@@ -516,11 +530,11 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 		else
 		{
 			String color = receiveColor;
-			if (message.toLowerCase().contains("changed their nick to " + client.getNick()))
+			/*if (message.toLowerCase().contains("changed their nick to " + client.getNick()))
 			{
 				nick = client.getNick();
 				return;
-			}
+			}*/
 			if (message.charAt(0) == '[')
 				color = pmColor;
 			if (message.charAt(0) == '*')
@@ -545,7 +559,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 		text.setEditable(false);
 		kit = new HTMLEditorKit();
 		text.setEditorKit(kit);
-		client.connect("irc.liberty-unleashed.co.uk", "#minelord ", nick, this);
+		client.connect("irc.liberty-unleashed.co.uk", "#minelord-modpack", nick, this);
 		scroller = new JScrollPane(text);
 		text.setEditable(false);
 		connect();
@@ -655,7 +669,12 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 		}
 		addHTML(logHTML.toString());
 	}
-
+	@Override
+	public void clearChat()
+	{
+		IRCLog=new ArrayList<String>();
+		refreshLogs();
+	}
 	public static void addHTML(String html)
 	{
 		synchronized (kit)
@@ -787,11 +806,15 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 	}
 	public static void loadCommands()
 	{
-		IRCCommand[] commands=new IRCCommand[3];
-		commands[0]=new IRCCommand("/help", IRCCommand.getAllHelp(), "I think we know what this does", false);
-		commands[1]=new IRCCommand("/nick", "", "Changes your nickname", true);
-		commands[2]=new IRCCommand("/nick", "", "Reverts your nickname", false);
-		for(int i=0; i<commands.length; i++)
-			IRCCommand.add(commands[i]);
+		ArrayList<IRCCommand> commands=new ArrayList<IRCCommand>();
+		commands.add(new HelpIRCCommand("/help", null, "I think we know what this does."));
+		commands.add(new ActionIRCCommand("/me", null, "Performs and action."));
+		commands.add(new NickIRCCommand("/nick", null, "Changes your nickname. Don't include parameters to revert your nick."));
+		commands.add(new ClearChatIRCCommand("/clear", null, "Clears the chat area."));
+		commands.add(new PrivMessageIRCCommand("/msg", null, "Sends a private message."));
+		commands.add(new ReplyIRCCommand("/r", null, "Replies by private message to the last person that PM'd you."));
+		commands.add(new DebugIRCCommand("/break", null, "I don't know what you're talking about."));
+		for(int i=0; i<commands.size(); i++)
+			IRCCommand.add(commands.get(i));
 	}
 }

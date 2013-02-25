@@ -1,6 +1,5 @@
-package net.minelord.util;
+package net.minelord.util.IRC;
 
-import java.nio.channels.NotYetConnectedException;
 import java.util.List;
 
 import jerklib.Channel;
@@ -142,7 +141,10 @@ public class IRCClient implements IRCEventListener
 					message = sender + ": " + raw.substring(raw.indexOf(this.channel.getName()) + this.channel.getName().length() + 2);
 				if (e.getType() == Type.NICK_CHANGE)
 				{
-					message = "*" + sender + " changed their nick to " + raw.substring(raw.indexOf("NICK") + 5);
+					boolean you=false;
+					if(raw.substring(raw.indexOf("NICK") + 5).equals(getNick()))
+						you=true;
+					message = "*" + (you?"You":sender) + " changed "+(you?"your":"their")+" nick to " + raw.substring(raw.indexOf("NICK") + 5);
 					this.messageListener.updateUserList(IRCPane.sortType);
 				}
 				if (e.getType() == Type.CTCP_EVENT)
@@ -309,7 +311,7 @@ public class IRCClient implements IRCEventListener
 	{
 		if (message == null || message.length() == 0)
 			return;
-		if (message.charAt(0) == '/')
+		/*if (message.charAt(0) == '/')
 		{
 			if (message.contains(" "))
 				for (int i = 0; i < message.length(); i++)
@@ -430,7 +432,7 @@ public class IRCClient implements IRCEventListener
 				}
 			}
 		}
-		else
+		else*/
 			if (this.channel != null)
 				this.channel.say(message);
 			else
@@ -452,6 +454,10 @@ public class IRCClient implements IRCEventListener
 	public String getNick()
 	{
 		return this.s.getNick();
+	}
+	public String getActualNick()
+	{
+		return this.nick;
 	}
 
 	public String getNetwork()
@@ -521,6 +527,18 @@ public class IRCClient implements IRCEventListener
 	{
 		return this.channel.getNicksForMode(null, 'h');
 	}
+	public void setNick(String nick)
+	{
+		this.s.changeNick(nick);
+	}
+	public void revertNick()
+	{
+		this.s.changeNick(nick);
+	}
+	public void action(String action)
+	{
+			this.channel.action(action);
+	}
 	@SuppressWarnings("unused")
 	private void printEvent(EventToken token)
 	{
@@ -533,5 +551,17 @@ public class IRCClient implements IRCEventListener
 		System.out.println("username " + token.userName() + " --");
 		System.out.println("tostring " + token.args().toString() + " --");
 		System.out.println();
+	}
+	public void clearChat()
+	{
+		this.messageListener.clearChat();
+	}
+	public void message(String nick, String message)
+	{
+		this.s.sayPrivate(nick, message);
+	}
+	public Session getSession()
+	{
+		return this.s;
 	}
 }
