@@ -1,5 +1,6 @@
 package net.minelord.util.IRC;
 
+import java.nio.channels.NotYetConnectedException;
 import java.util.List;
 
 import jerklib.Channel;
@@ -82,19 +83,20 @@ public class IRCClient implements IRCEventListener
 			receiveEvent(event);
 			return;
 		}
-		Logger.logInfo(e.getType() + " : " + e.getRawEventData());
+	//	Logger.logInfo(e.getType() + " : " + e.getRawEventData());
 		if (e.getType() == Type.CONNECT_COMPLETE)
 		{
+			this.messageListener.clearChat();
 			e.getSession().join(this.room);
 			this.s = e.getSession();
 			this.alertListener.connected();
 		}
 		else
 		{
-			if (e.getType() == Type.AWAY_EVENT || e.getType() == Type.NICK_IN_USE || e.getType() == Type.NOTICE || e.getType() == Type.SERVER_INFORMATION || (e.getType() == Type.DEFAULT && !e.getRawEventData().contains("KICK")) || e.getType() == Type.SERVER_VERSION_EVENT || e.getType() == Type.MOTD
+			if (e.getType() == Type.AWAY_EVENT || e.getType() == Type.NICK_IN_USE || e.getType() == Type.SERVER_INFORMATION || (e.getType() == Type.DEFAULT && !e.getRawEventData().contains("KICK")) || e.getType() == Type.SERVER_VERSION_EVENT || e.getType() == Type.MOTD
 					|| e.getType() == Type.NICK_LIST_EVENT)
 			{
-				Logger.logInfo(e.getRawEventData());
+				//Logger.logInfo(e.getRawEventData());
 				return;
 			}
 			if (e.getType() == Type.MODE_EVENT && e.getRawEventData().contains("+nt"))
@@ -116,8 +118,23 @@ public class IRCClient implements IRCEventListener
 			try
 			{
 				String raw = e.getRawEventData();
+				EventToken token=new EventToken(raw);
+				if(e.getType()==Type.WHOIS_EVENT)
+				{
+					printToken(token);
+					System.out.println("username: "+token.args().get(2));
+					System.out.println("host: "+token.arg(3));
+					for(int i=0; i<token.args().size(); i++)
+						System.out.println(i+" "+token.arg(i));
+				}
 				String sender = raw.substring(1, raw.indexOf('!'));
 				String message = "";
+				if(e.getType() == Type.NOTICE)
+				{
+					printToken(new EventToken(raw));
+					message="-[NOTICE] "+sender+": "+raw.substring(raw.indexOf("NOTICE "+getNick())+getNick().length()+9);
+					alertAlertListener();
+				}
 				if (e.getType() == Type.ERROR)
 				{
 					message = "-" + raw;
@@ -238,6 +255,7 @@ public class IRCClient implements IRCEventListener
 					messageListener.receiveMessage("-ERROR DISPLAYING MESSAGE (Check console)");
 				System.err.println("broke: " + e.getType() + " : " + e.getRawEventData());
 				ex.printStackTrace();
+				printToken(new EventToken(e.getRawEventData()));
 			}
 		}
 	}
@@ -433,10 +451,10 @@ public class IRCClient implements IRCEventListener
 			}
 		}
 		else*/
-			if (this.channel != null)
-				this.channel.say(message);
-			else
-				System.out.println("No channel!");
+		if (this.channel != null)
+			this.channel.say(message);
+		else
+			System.out.println("No channel!");
 	}
 
 	public boolean containsNick(String msg)
@@ -537,10 +555,10 @@ public class IRCClient implements IRCEventListener
 	}
 	public void action(String action)
 	{
-			this.channel.action(action);
+		this.channel.action(action);
 	}
 	@SuppressWarnings("unused")
-	private void printEvent(EventToken token)
+	private void printToken(EventToken token)
 	{
 		System.out.println("command " + token.command() + " --");
 		System.out.println("data " + token.data() + " --");
@@ -563,5 +581,40 @@ public class IRCClient implements IRCEventListener
 	public Session getSession()
 	{
 		return this.s;
+	}
+	public void closeChat()
+	{
+		try
+		{
+			this.conman.quit();
+			this.messageListener.disconnect();
+			this.messageListener.quit();
+			this.alertListener.disconnected();
+		}
+		catch (NotYetConnectedException ex)
+		{
+			IRCEvent event = new IRCEvent()
+			{
+				@Override
+				public Type getType()
+				{
+					return Type.CONNECTION_LOST;
+				}
+
+				@Override
+				public Session getSession()
+				{
+					return s;
+				}
+
+				@Override
+				public String getRawEventData()
+				{
+					return "No Internet connection!";
+				}
+			};
+			receiveEvent(event);
+			return;
+		}
 	}
 }

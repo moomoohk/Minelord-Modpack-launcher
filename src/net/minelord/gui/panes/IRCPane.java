@@ -64,12 +64,16 @@ import net.minelord.util.IRC.IRCClient;
 import net.minelord.util.IRC.IRCCommand;
 import net.minelord.util.IRC.IRCMessageListener;
 import net.minelord.util.IRC.commands.ActionIRCCommand;
+import net.minelord.util.IRC.commands.AlertIRCCommand;
 import net.minelord.util.IRC.commands.ClearChatIRCCommand;
 import net.minelord.util.IRC.commands.DebugIRCCommand;
 import net.minelord.util.IRC.commands.HelpIRCCommand;
+import net.minelord.util.IRC.commands.JoinIRCCommand;
 import net.minelord.util.IRC.commands.NickIRCCommand;
 import net.minelord.util.IRC.commands.PrivMessageIRCCommand;
+import net.minelord.util.IRC.commands.QuitIRCCommand;
 import net.minelord.util.IRC.commands.ReplyIRCCommand;
+import net.minelord.util.IRC.commands.WhoisIRCCommand;
 
 public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 {
@@ -96,6 +100,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 	public static ArrayList<String> lastCommands = new ArrayList<String>();
 	public static int lastCommandSelector = 0, sortType=0;
 	public static HashMap<Character, String> colorMap = new HashMap<Character, String>();
+	public static IRCPane instance=null;
 
 	static
 	{
@@ -194,6 +199,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 					input.requestFocus();
 			}
 		});
+		instance=this;
 	}
 
 	public void disconnect()
@@ -205,7 +211,6 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 			userScroller.setBorder(title);
 		else
 			scroller.setBorder(title);
-		input.setText("");
 		input.setEnabled(false);
 	}
 
@@ -216,6 +221,16 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 		TitledBorder title = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), status);
 		title.setTitleJustification(TitledBorder.RIGHT);
 		scroller.setBorder(title);
+		if (topic != null && topic.getParent() == this)
+		{
+			showTopic(false);
+			remove(topic);
+		}
+		if (userScroller != null && userScroller.getParent() == this)
+		{
+			showUserList(false);
+			remove(userScroller);
+		}
 	}
 
 	public void quit()
@@ -813,7 +828,11 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 		commands.add(new ClearChatIRCCommand("/clear", null, "Clears the chat area."));
 		commands.add(new PrivMessageIRCCommand("/msg", null, "Sends a private message."));
 		commands.add(new ReplyIRCCommand("/r", null, "Replies by private message to the last person that PM'd you."));
+		commands.add(new QuitIRCCommand("/quit", "Quitting...", "Disconnects you from chat"));
+		commands.add(new WhoisIRCCommand("/whois", null, "Submits a whois request for a provided nick."));
+		commands.add(new JoinIRCCommand("/join", null, "Switches IRC channels."));
 		commands.add(new DebugIRCCommand("/break", null, "I don't know what you're talking about."));
+		commands.add(new AlertIRCCommand("/alert", null, "I still don't know what you're talking about."));
 		for(int i=0; i<commands.size(); i++)
 			IRCCommand.add(commands.get(i));
 	}
