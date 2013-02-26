@@ -13,7 +13,6 @@ import jerklib.events.IRCEvent.Type;
 import jerklib.events.JoinCompleteEvent;
 import jerklib.listeners.IRCEventListener;
 import net.minelord.gui.panes.IRCPane;
-import net.minelord.log.Logger;
 
 public class IRCClient implements IRCEventListener
 {
@@ -255,7 +254,7 @@ public class IRCClient implements IRCEventListener
 					messageListener.receiveMessage("-ERROR DISPLAYING MESSAGE (Check console)");
 				System.err.println("broke: " + e.getType() + " : " + e.getRawEventData());
 				ex.printStackTrace();
-				printToken(new EventToken(e.getRawEventData()));
+				//printToken(new EventToken(e.getRawEventData()));
 			}
 		}
 	}
@@ -557,7 +556,6 @@ public class IRCClient implements IRCEventListener
 	{
 		this.channel.action(action);
 	}
-	@SuppressWarnings("unused")
 	private void printToken(EventToken token)
 	{
 		System.out.println("command " + token.command() + " --");
