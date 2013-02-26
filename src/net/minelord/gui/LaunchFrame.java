@@ -25,6 +25,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
@@ -41,6 +43,7 @@ import java.util.Arrays;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -95,12 +98,14 @@ import net.minelord.util.DownloadUtils;
 import net.minelord.util.ErrorUtils;
 import net.minelord.util.FileUtils;
 import net.minelord.util.OSUtils;
-import net.minelord.util.IRC.IRCAlertListener;
 import net.minelord.util.OSUtils.OS;
 import net.minelord.util.StyleUtil;
 import net.minelord.util.TrackerUtils;
+import net.minelord.util.IRC.IRCAlertListener;
 import net.minelord.workers.GameUpdateWorker;
 import net.minelord.workers.LoginWorker;
+
+import com.apple.eawt.Application;
 
 public class LaunchFrame extends JFrame implements IRCAlertListener
 {
@@ -138,6 +143,7 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 	public static String tempPass = "";
 	public static Panes currentPane = Panes.MODPACK;
 	public static JGoogleAnalyticsTracker tracker = new JGoogleAnalyticsTracker(new AnalyticsConfigData("UA-37330489-2"), GoogleAnalyticsVersion.V_4_7_2);
+	public static Application application=Application.getApplication();
 
 	public static final String FORGENAME = "MinecraftForge.zip";
 
@@ -153,6 +159,8 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 	 */
 	public static void main(String[] args)
 	{
+		if(OSUtils.getCurrentOS()==OS.MACOSX)
+			setupMac();
 		tracker.setEnabled(true);
 		TrackerUtils.sendPageView("net/minelord/gui/LaunchFrame.java", "Launcher Start v" + version);
 
@@ -165,7 +173,7 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 		{
 			new File(Settings.getSettings().getInstallPath(), "MinecraftLog.txt").delete();
 		}
-
+		
 		DownloadUtils thread = new DownloadUtils();
 		thread.start();
 
@@ -623,8 +631,28 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 				}
 			}
 		});
+		addWindowListener(new WindowAdapter()
+		{
+			@Override
+			public void windowClosing(WindowEvent arg0)
+			{
+
+			}
+		});
 		IRCPane.client.setIRCAlertListener(this);
 		con.setLaunchFrame(this);
+	}
+
+	private static void setupMac()
+	{
+		try
+		{
+			application.setDockIconImage(ImageIO.read(LaunchFrame.class.getResource("/image/logo_minelord_shine.png")));
+		}
+		catch (IOException e1)
+		{
+			Logger.logInfo("Couldn't create Mac dock icon.");
+		}
 	}
 
 	public void setNewsIcon()
@@ -1334,7 +1362,10 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 	public void alert()
 	{
 		if(currentPane!=Panes.CHAT)
+		{
 			tabbedPane.setIconAt(3, new ImageIcon(this.getClass().getResource("/image/tabs/chat_alert.png")));
+			application.requestUserAttention(false);
+		}
 	}
 
 	public void showChat()
@@ -1342,7 +1373,7 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 		tabbedPane.setSelectedIndex(3);
 		((ILauncherPane) tabbedPane.getComponent(3)).onVisible();
 		currentPane = Panes.values()[tabbedPane.getSelectedIndex()];
-		tabbedPane.requestFocus();
+		IRCPane.instance.requestFocus();
 	}
 	public void disconnected()
 	{
