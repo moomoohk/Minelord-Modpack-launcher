@@ -67,14 +67,20 @@ import net.minelord.util.IRC.IRCCommand;
 import net.minelord.util.IRC.IRCMessageListener;
 import net.minelord.util.IRC.commands.ActionIRCCommand;
 import net.minelord.util.IRC.commands.AlertIRCCommand;
+import net.minelord.util.IRC.commands.BanIRCCommand;
 import net.minelord.util.IRC.commands.ClearChatIRCCommand;
 import net.minelord.util.IRC.commands.DebugIRCCommand;
 import net.minelord.util.IRC.commands.HelpIRCCommand;
 import net.minelord.util.IRC.commands.JoinIRCCommand;
+import net.minelord.util.IRC.commands.KickBanIRCCommand;
+import net.minelord.util.IRC.commands.KickIRCCommand;
+import net.minelord.util.IRC.commands.KickUnbanIRCCommand;
 import net.minelord.util.IRC.commands.NickIRCCommand;
 import net.minelord.util.IRC.commands.PrivMessageIRCCommand;
 import net.minelord.util.IRC.commands.QuitIRCCommand;
 import net.minelord.util.IRC.commands.ReplyIRCCommand;
+import net.minelord.util.IRC.commands.SetUserModeIRCCommand;
+import net.minelord.util.IRC.commands.UnbanIRCCommand;
 import net.minelord.util.IRC.commands.WhoisIRCCommand;
 
 public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
@@ -342,6 +348,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 		input.setEnabled(true);
 		input.requestFocus();
 		final JPopupMenu userPopup = new JPopupMenu();
+		JLabel breakLine=new JLabel("____");
 		JLabel help = new JLabel("Politely ask for help");
 		JLabel message = new JLabel("Message");
 		JLabel sortNormal = new JLabel("Normal");
@@ -402,6 +409,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 		});
 		userPopup.add(help);
 		userPopup.add(message);
+		userPopup.add(breakLine);
 		userPopup.add(sortNormal);
 		userPopup.add(sortAlphabetical);
 		userPopup.add(sortRoles);
@@ -594,7 +602,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 		text.setEditable(false);
 		kit = new HTMLEditorKit();
 		text.setEditorKit(kit);
-		client.connect("irc.liberty-unleashed.co.uk", "#minelord-modpack", nick, this);
+		client.connect("irc.liberty-unleashed.co.uk", "#minelord-modpacks", nick, this);
 		scroller = new JScrollPane(text);
 		text.setEditable(false);
 		connect();
@@ -847,7 +855,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 	{
 		ArrayList<IRCCommand> commands = new ArrayList<IRCCommand>();
 		commands.add(new HelpIRCCommand("/help", null, "I think we know what this does."));
-		commands.add(new ActionIRCCommand("/me", null, "Performs and action."));
+		commands.add(new ActionIRCCommand("/me", null, "Performs an action."));
 		commands.add(new NickIRCCommand("/nick", null, "Changes your nickname. Don't include parameters to revert your nick."));
 		commands.add(new ClearChatIRCCommand("/clear", null, "Clears the chat area."));
 		commands.add(new PrivMessageIRCCommand("/msg", null, "Sends a private message."));
@@ -855,8 +863,14 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 		commands.add(new QuitIRCCommand("/quit", "Quitting...", "Disconnects you from chat"));
 		commands.add(new WhoisIRCCommand("/whois", null, "Submits a whois request for a provided nick."));
 		commands.add(new JoinIRCCommand("/join", null, "Switches IRC channels."));
+		commands.add(new SetUserModeIRCCommand("/mode", null, "Sets a user's mode in this channel (must have perms)."));
+		commands.add(new KickIRCCommand("/kick", null, "Kicks a user from the channel (must have perms)."));
+		commands.add(new BanIRCCommand("/ban", null, "Bans a user from the channel (must have perms)."));
+		commands.add(new KickBanIRCCommand("/kickban", null, "Kickbans a user from the channel (must have perms)."));
+		commands.add(new UnbanIRCCommand("/unban", null, "Unbans a banned user from the channel (must have perms)."));
 		commands.add(new DebugIRCCommand("/break", null, "I don't know what you're talking about."));
 		commands.add(new AlertIRCCommand("/alert", null, "I still don't know what you're talking about."));
+		commands.add(new KickUnbanIRCCommand("/kickunban", null, "Speak up I can't hear you."));
 		for (int i = 0; i < commands.size(); i++)
 			IRCCommand.add(commands.get(i));
 	}

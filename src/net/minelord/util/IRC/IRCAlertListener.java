@@ -7,5 +7,6 @@ public interface IRCAlertListener
 	public void disconnected();
 	public void connected();
 	public void topicChange();
+	public void hideGUI();
 }
 

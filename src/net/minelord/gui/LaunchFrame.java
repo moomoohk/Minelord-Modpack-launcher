@@ -43,7 +43,6 @@ import java.util.Arrays;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
-import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -105,8 +104,6 @@ import net.minelord.util.IRC.IRCAlertListener;
 import net.minelord.workers.GameUpdateWorker;
 import net.minelord.workers.LoginWorker;
 
-import com.apple.eawt.Application;
-
 public class LaunchFrame extends JFrame implements IRCAlertListener
 {
 	/**
@@ -119,6 +116,7 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 	private JPanel footer = new JPanel();
 	private JLabel footerBanner = new JLabel(new ImageIcon(this.getClass().getResource("/image/banner_minelord.png")));
 	private JLabel tpInstallLocLbl = new JLabel();
+	
 	private JToggleButton showTopic=new JToggleButton(), showUserlist=new JToggleButton();
 	private JButton launch = new JButton(), edit = new JButton(), donate = new JButton(), serverbutton = new JButton(), mapInstall = new JButton(), serverMap = new JButton(), tpInstall = new JButton(), openChatInBrowser=new JButton(), closeChat=new JButton("Close chat");
 
@@ -143,7 +141,6 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 	public static String tempPass = "";
 	public static Panes currentPane = Panes.MODPACK;
 	public static JGoogleAnalyticsTracker tracker = new JGoogleAnalyticsTracker(new AnalyticsConfigData("UA-37330489-2"), GoogleAnalyticsVersion.V_4_7_2);
-	public static Application application=Application.getApplication();
 
 	public static final String FORGENAME = "MinecraftForge.zip";
 
@@ -159,11 +156,8 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 	 */
 	public static void main(String[] args)
 	{
-		if(OSUtils.getCurrentOS()==OS.MACOSX)
-			setupMac();
 		tracker.setEnabled(true);
 		TrackerUtils.sendPageView("net/minelord/gui/LaunchFrame.java", "Launcher Start v" + version);
-
 		if (new File(Settings.getSettings().getInstallPath(), "MinelordLauncherLog.txt").exists())
 		{
 			new File(Settings.getSettings().getInstallPath(), "MinelordLauncherLog.txt").delete();
@@ -173,7 +167,7 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 		{
 			new File(Settings.getSettings().getInstallPath(), "MinecraftLog.txt").delete();
 		}
-		
+
 		DownloadUtils thread = new DownloadUtils();
 		thread.start();
 
@@ -184,7 +178,6 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 		Logger.logInfo("Java specification: " + System.getProperty("java.vm.specification.name") + " version: " + System.getProperty("java.vm.specification.version") + " by " + System.getProperty("java.vm.specification.vendor"));
 		Logger.logInfo("Java vm: " + System.getProperty("java.vm.name") + " version: " + System.getProperty("java.vm.version") + " by " + System.getProperty("java.vm.vendor"));
 		Logger.logInfo("OS: " + System.getProperty("os.arch") + " " + System.getProperty("os.name") + " " + System.getProperty("os.version"));
-
 		EventQueue.invokeLater(new Runnable()
 		{
 			@Override
@@ -284,6 +277,17 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 	 */
 	public LaunchFrame(final int tab)
 	{
+		if(OSUtils.getCurrentOS()==OS.MACOSX)
+		{
+			/*try
+			{
+				application.setDockIconImage(ImageIO.read(getClass().getResource("/image/logo_minelord_shine.png")));
+			}
+			catch (IOException e1)
+			{
+				Logger.logInfo("Couldn't create Mac dock icon.");
+			}*/
+		}
 		setFont(new Font("a_FuturaOrto", Font.PLAIN, 12));
 		setResizable(false);
 		setTitle("Minelord Modpack Launcher v" + version);
@@ -641,18 +645,6 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 		});
 		IRCPane.client.setIRCAlertListener(this);
 		con.setLaunchFrame(this);
-	}
-
-	private static void setupMac()
-	{
-		try
-		{
-			application.setDockIconImage(ImageIO.read(LaunchFrame.class.getResource("/image/logo_minelord_shine.png")));
-		}
-		catch (IOException e1)
-		{
-			Logger.logInfo("Couldn't create Mac dock icon.");
-		}
 	}
 
 	public void setNewsIcon()
@@ -1364,7 +1356,6 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 		if(currentPane!=Panes.CHAT)
 		{
 			tabbedPane.setIconAt(3, new ImageIcon(this.getClass().getResource("/image/tabs/chat_alert.png")));
-			application.requestUserAttention(false);
 		}
 	}
 
@@ -1400,5 +1391,12 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 			showTopic.setEnabled(false);
 		else
 			showTopic.setEnabled(true);
+	}
+
+	@Override
+	public void hideGUI()
+	{
+		showTopic.setVisible(false);
+		showUserlist.setVisible(false);
 	}
 }
