@@ -25,8 +25,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
@@ -43,6 +43,7 @@ import java.util.Arrays;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -104,6 +105,8 @@ import net.minelord.util.IRC.IRCAlertListener;
 import net.minelord.workers.GameUpdateWorker;
 import net.minelord.workers.LoginWorker;
 
+import com.apple.eawt.Application;
+
 public class LaunchFrame extends JFrame implements IRCAlertListener
 {
 	/**
@@ -116,7 +119,7 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 	private JPanel footer = new JPanel();
 	private JLabel footerBanner = new JLabel(new ImageIcon(this.getClass().getResource("/image/banner_minelord.png")));
 	private JLabel tpInstallLocLbl = new JLabel();
-	
+
 	private JToggleButton showTopic=new JToggleButton(), showUserlist=new JToggleButton();
 	private JButton launch = new JButton(), edit = new JButton(), donate = new JButton(), serverbutton = new JButton(), mapInstall = new JButton(), serverMap = new JButton(), tpInstall = new JButton(), openChatInBrowser=new JButton(), closeChat=new JButton("Close chat");
 
@@ -135,8 +138,8 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 	public TexturepackPane tpPane;
 	public OptionsPane optionsPane;
 
-	public static int buildNumber = 0;
-	public static boolean noConfig = false;
+	public static int buildNumber = 1;
+	public static boolean noConfig = false, hasFocus=true;
 	public static LauncherConsole con;
 	public static String tempPass = "";
 	public static Panes currentPane = Panes.MODPACK;
@@ -279,14 +282,15 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 	{
 		if(OSUtils.getCurrentOS()==OS.MACOSX)
 		{
-			/*try
+			try
 			{
-				application.setDockIconImage(ImageIO.read(getClass().getResource("/image/logo_minelord_shine.png")));
+				Application application=Application.getApplication();
+				application.setDockIconImage(ImageIO.read(new URL("http://i.imgur.com/LxWFDsy.png")));
 			}
 			catch (IOException e1)
 			{
 				Logger.logInfo("Couldn't create Mac dock icon.");
-			}*/
+			}
 		}
 		setFont(new Font("a_FuturaOrto", Font.PLAIN, 12));
 		setResizable(false);
@@ -630,17 +634,30 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 					((ILauncherPane) tabbedPane.getSelectedComponent()).onVisible();
 					currentPane = Panes.values()[tabbedPane.getSelectedIndex()];
 					if(currentPane==Panes.CHAT)
+					{
 						tabbedPane.setIconAt(3, new ImageIcon(this.getClass().getResource("/image/tabs/chat.png")));
+						if(OSUtils.getCurrentOS()==OS.MACOSX)
+							Application.getApplication().setDockIconBadge("");
+					}
 					updateFooter();
 				}
 			}
 		});
-		addWindowListener(new WindowAdapter()
+		addWindowFocusListener(new WindowFocusListener()
 		{
+			
 			@Override
-			public void windowClosing(WindowEvent arg0)
+			public void windowLostFocus(WindowEvent arg0)
 			{
-
+				hasFocus=false;
+			}
+			
+			@Override
+			public void windowGainedFocus(WindowEvent arg0)
+			{
+				hasFocus=true;
+				if(OSUtils.getCurrentOS()==OS.MACOSX)
+					Application.getApplication().setDockIconBadge("");
 			}
 		});
 		IRCPane.client.setIRCAlertListener(this);
@@ -1357,6 +1374,11 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 		{
 			tabbedPane.setIconAt(3, new ImageIcon(this.getClass().getResource("/image/tabs/chat_alert.png")));
 		}
+		if(OSUtils.getCurrentOS()==OS.MACOSX&&!hasFocus)
+		{
+			Application.getApplication().requestUserAttention(true);
+			Application.getApplication().setDockIconBadge("*");
+		}
 	}
 
 	public void showChat()
@@ -1364,7 +1386,7 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 		tabbedPane.setSelectedIndex(3);
 		((ILauncherPane) tabbedPane.getComponent(3)).onVisible();
 		currentPane = Panes.values()[tabbedPane.getSelectedIndex()];
-		IRCPane.instance.requestFocus();
+		IRCPane.instance.requestFocusInWindow();
 	}
 	public void disconnected()
 	{

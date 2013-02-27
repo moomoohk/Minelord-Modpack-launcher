@@ -62,7 +62,7 @@ public class IRCClient implements IRCEventListener
 			alertAlertListener();
 			break;
 		case ERROR:
-			message = "-" + token.arg(2);
+			message = "-[ERROR] " + token.arg(2);
 			alertAlertListener();
 			if (message.contains("€¦"))
 				message = message.replace("€¦", "...");
@@ -140,6 +140,10 @@ public class IRCClient implements IRCEventListener
 					message = setBy + " promoted " + modeChanged + " to half operator";
 				if (mode == 'o')
 					message = setBy + " promoted " + modeChanged + " to operator";
+				if (mode == 'q')
+					message = setBy + " promoted " + modeChanged + " to channel owner";
+				if (mode == 'a')
+					message = setBy + " promoted " + modeChanged + " to administrator";
 				if (mode == 'v')
 					message = modeChanged.equals("you") ? "You were granted voice by " + setBy : modeChanged + " was granted voice by " + setBy;
 			}
@@ -151,6 +155,10 @@ public class IRCClient implements IRCEventListener
 					message = setBy + " demoted " + modeChanged + " from half operator";
 				if (mode == 'o')
 					message = setBy + " demoted " + modeChanged + " from operator";
+				if (mode == 'q')
+					message = setBy + " demoted " + modeChanged + " from channel owner";
+				if (mode == 'a')
+					message = setBy + " demoted " + modeChanged + " from administrator";
 				if (mode == 'v')
 					message = modeChanged.equals("you") ? "You had your voice removed by " + setBy : modeChanged + " had their voice removed by " + setBy;
 			}
@@ -362,7 +370,8 @@ public class IRCClient implements IRCEventListener
 	{
 		try
 		{
-			this.conman.quit();
+			if(conman!=null)
+				this.conman.quit();
 			this.messageListener.disconnect();
 			this.messageListener.quit();
 			this.alertListener.disconnected();

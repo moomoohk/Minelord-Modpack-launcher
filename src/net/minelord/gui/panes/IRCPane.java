@@ -602,7 +602,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 		text.setEditable(false);
 		kit = new HTMLEditorKit();
 		text.setEditorKit(kit);
-		client.connect("irc.liberty-unleashed.co.uk", "#minelord-modpacks", nick, this);
+		client.connect("irc.liberty-unleashed.co.uk", "#moomoohk", nick, this);
 		scroller = new JScrollPane(text);
 		text.setEditable(false);
 		connect();
@@ -720,7 +720,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 		refreshLogs();
 	}
 
-	public static void addHTML(String html)
+	synchronized public static void addHTML(String html)
 	{
 		synchronized (kit)
 		{
