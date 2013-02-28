@@ -531,7 +531,7 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 		if (message.charAt(0) == '-')
 		{
 			message = message.substring(1);
-			IRCLog.add("<font color=\"" + errorColor + "\">" + escapeHtml3(message).replaceAll("\"<\"", "<") + "</font><br>");
+			IRCLog.add("<font color=\"" + errorColor + "\">" + message + "</font><br>");
 			refreshLogs();
 			return;
 		}
@@ -560,6 +560,31 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 		Pattern p = Pattern.compile(regex);
 		Matcher m = p.matcher(message);
 		message=escapeHtml3(message).replaceAll("\"<\"", "<");
+		message=parseChannels(message, color);
+		String temp=message, temp2="";
+		boolean found=false;
+		while (m.find())
+		{
+			found=true;
+			String url = m.group();
+			if (url.startsWith("(") && url.endsWith(")"))
+				url = url.substring(1, url.length() - 1);
+			temp2+=temp.substring(0, temp.indexOf(url));
+			temp=temp.substring(temp.indexOf(url));
+			temp2+="</font><font color=\"#1C6FF\"><u><a href="+temp.substring(0, url.length()).trim()+">"+temp.substring(0, url.length())+"</a></u><font color=\""+color+"\">";
+			temp=temp.substring(url.length());
+			message=temp2;
+		}
+		if(found)
+			message+=temp;
+		return message;
+	}
+	public static String parseChannels(String message, String color)
+	{
+		String regex = "#\\S+";
+		Pattern p = Pattern.compile(regex);
+		Matcher m = p.matcher(message);
+		//message=escapeHtml3(message).replaceAll("\"<\"", "<");
 		String temp=message, temp2="";
 		boolean found=false;
 		while (m.find())
@@ -614,7 +639,13 @@ public class IRCPane extends JPanel implements IRCMessageListener, ILauncherPane
 					{
 						if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED)
 						{
-							OSUtils.browse(event.getURL().toString());
+							if(event.getDescription().charAt(0)=='#')
+							{
+								String[] params={event.getDescription()};
+								IRCCommand.getCommand("/join").execute(client, params);
+							}
+							else
+								OSUtils.browse(event.getURL().toString());
 						}
 					}
 				});

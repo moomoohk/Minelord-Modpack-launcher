@@ -14,6 +14,11 @@ public class PrivMessageIRCCommand extends IRCCommand
 	@Override
 	public void execute(IRCClient client, String[] params)
 	{
+		if(stringParams(params, 1)==null)
+		{
+			missingParameters(client, params);
+			return;
+		}
 		this.message="[You -> " + params[0] + "]: " + stringParams(params, 1);
 		this.color=IRCPane.pmColor;
 		client.message(params[0], stringParams(params, 1));

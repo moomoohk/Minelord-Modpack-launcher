@@ -3,10 +3,11 @@ package net.minelord.util.IRC;
 import java.util.ArrayList;
 
 import net.minelord.gui.panes.IRCPane;
+
 public abstract class IRCCommand
 {
 	public static ArrayList<IRCCommand> commands = new ArrayList<IRCCommand>();
-	protected String command, message, help, color=null;
+	protected String command, message, help, color = null;
 	protected int minParams, maxParams;
 	protected boolean containsHTML;
 
@@ -15,9 +16,9 @@ public abstract class IRCCommand
 		this.command = command;
 		this.message = message;
 		this.help = help;
-		this.containsHTML=false;
-		this.minParams=minParams;
-		this.maxParams=maxParams;
+		this.containsHTML = false;
+		this.minParams = minParams;
+		this.maxParams = maxParams;
 	}
 
 	public static void add(IRCCommand command)
@@ -47,37 +48,37 @@ public abstract class IRCCommand
 	{
 		return this.color;
 	}
+
 	public boolean containsHTML()
 	{
 		return this.containsHTML;
 	}
+
 	public static String getAllHelp()
 	{
 		if (commands.size() == 0)
 			return "No commands";
-		String help = "<b>Commands:</b><br>";
+		String help = "<b><u>Commands:</u></b><br>";
 		for (int i = 0; i < commands.size(); i++)
 		{
 			help += "&nbsp;&nbsp;- - -<br>";
-			help += "&nbsp;&nbsp;"+commands.get(i).getCommand() + "<br>";
-			help += "&nbsp;&nbsp;"+commands.get(i).getHelp() + "<br>";
+			help += "&nbsp;&nbsp;" + commands.get(i).getCommand() + "<br>";
+			help += "&nbsp;&nbsp;" + commands.get(i).getHelp() + "<br>";
 		}
 		help += "&nbsp;&nbsp;- - -";
 		return help;
 	}
+
 	public static String stringParams(String[] params, int start)
 	{
-		if(params.length==0||start>=params.length)
+		if (params.length == 0 || start >= params.length)
 			return null;
-		String temp="";
-		for(int i=start; i<params.length; i++)
-		{
-			temp+=params[i];
-			if(i!=params.length-1)
-				temp+=" ";
-		}
+		String temp = params[start];
+		for (int i = start+1; i < params.length; i++)
+			temp += " "+params[i];
 		return temp;
 	}
+
 	public static String parseCommand(String command)
 	{
 		if (command.trim().contains(" "))
@@ -144,37 +145,42 @@ public abstract class IRCCommand
 	{
 		try
 		{
-			if(check(client, params))
+			if (check(client, params))
 				execute(client, params);
 		}
-		catch(Exception e)
+		catch (Exception e)
 		{
-			this.color=IRCPane.errorColor;
-			this.message="[COMMAND ERROR] Problem with check method! (Consider making an override for your command)";
+			this.color = IRCPane.errorColor;
+			this.message = "[COMMAND ERROR] Problem with check method! (Consider making an override for your command)";
+			e.printStackTrace();
 		}
 	}
+
 	public boolean check(IRCClient client, String[] params)
 	{
-		if(params.length>=this.minParams&&((this.maxParams>=0)?params.length<=this.maxParams:true))
+		if (params.length >= this.minParams && ((this.maxParams >= 0) ? params.length <= this.maxParams : true))
 		{
-			this.color=IRCPane.sendColor;
+			this.color = IRCPane.sendColor;
 			return true;
 		}
-		this.color=IRCPane.errorColor;
-		if(params.length<this.minParams)
+		this.color = IRCPane.errorColor;
+		if (params.length < this.minParams)
 			missingParameters(client, params);
 		else
-			if(params.length>this.maxParams)
+			if (params.length > this.maxParams)
 				tooManyParameters(client, params);
 		return false;
 	}
+
 	public void tooManyParameters(IRCClient client, String[] params)
 	{
-		this.message="Too many parameters!";
+		this.message = "Too many parameters!";
 	}
+
 	public void missingParameters(IRCClient client, String[] params)
 	{
-		this.message="Missing parameters!";
+		this.message = "Missing parameters!";
 	}
+
 	public abstract void execute(IRCClient client, String[] params);
 }

@@ -90,58 +90,58 @@ public class IRCClient implements IRCEventListener
 			if (raw.contains("KICK"))
 			{
 				System.out.println(e.getRawEventData());
-				KickEvent ke=new KickEvent()
+				KickEvent ke = new KickEvent()
 				{
 					@Override
 					public Type getType()
 					{
 						return Type.KICK_EVENT;
 					}
-					
+
 					@Override
 					public Session getSession()
 					{
 						return e.getSession();
 					}
-					
+
 					@Override
 					public String getRawEventData()
 					{
 						return e.getRawEventData();
 					}
-					
+
 					@Override
 					public String getWho()
 					{
 						return raw.substring(raw.indexOf("KICK")).substring(6 + room.length(), raw.substring(raw.indexOf("KICK")).indexOf(":") - 1);
 					}
-					
+
 					@Override
 					public String getUserName()
 					{
 						// TODO Auto-generated method stub
 						return null;
 					}
-					
+
 					@Override
 					public String getMessage()
 					{
 						// TODO Auto-generated method stub
 						return null;
 					}
-					
+
 					@Override
 					public String getHostName()
 					{
 						return null;
 					}
-					
+
 					@Override
 					public Channel getChannel()
 					{
 						return channel;
 					}
-					
+
 					@Override
 					public String byWho()
 					{
@@ -264,13 +264,37 @@ public class IRCClient implements IRCEventListener
 			this.messageListener.updateUserList(IRCPane.sortType);
 			break;
 		case WHOIS_EVENT:
-			WhoisEvent whois=(WhoisEvent)e;
-			
-			printToken(token);
-			System.out.println("username: " + token.args().get(2));
-			System.out.println("host: " + token.arg(3));
-			for (int i = 0; i < token.args().size(); i++)
-				System.out.println(i + " " + token.arg(i));
+			/*
+			 * WhoisEvent whois=(WhoisEvent)e;
+			 * message="-<b><u>Whois "+token.args().get(2)+"</u></b><br>";
+			 * message+="Channels: <br>"; if(whois.getChannelNames().size()==0)
+			 * message+="&nbsp;&nbsp;(None)"; else {
+			 * message+="&nbsp;&nbsp;"+whois
+			 * .getChannelNames().get(0).substring(whois
+			 * .getChannelNames().get(0).indexOf("#")); for(int i=0;
+			 * i<whois.getChannelNames().size(); i++)
+			 * message+=", "+whois.getChannelNames
+			 * ().get(i).substring(whois.getChannelNames().get(i).indexOf("#"));
+			 * } System.out.println(whois.getHost());
+			 */
+			WhoisEvent wie = (WhoisEvent) e;
+			List<String> userChannels = wie.getChannelNames();
+			message = "-<HR WIDTH=\"50%\" SIZE=\"3\" NOSHADE>";
+			boolean idle = wie.isIdle();
+			message+= " <b><u>WhoIs information about " + wie.getUser() + "</u></b><br>" + "&nbsp;&nbsp;&nbsp;Username: " + wie.getUser() + " (" + wie.getHost() + ")<br>" + "&nbsp;&nbsp;&nbsp;Connected at: " + wie.signOnTime() + "<br>" + "&nbsp;&nbsp;&nbsp;Channels: ";
+
+			for (int i = 0; i < userChannels.size(); i++)
+			{ 
+				int size = userChannels.size();
+				if (i == (size - 1))
+					message += userChannels.get(i).substring(userChannels.get(i).indexOf("#")) + "<br>"; 
+				else
+					message += userChannels.get(i).substring(userChannels.get(i).indexOf("#")) + ", ";
+			}
+
+			if (idle)
+				message+= " * " + wie.getNick() + " is currently idle<br>" + " * Idle for the past " + wie.secondsIdle() + " seconds<br>";
+			message+= "<HR WIDTH=\"50%\" SIZE=\"3\" NOSHADE>";
 			break;
 		}
 		if (message.contains("€¦"))
@@ -434,7 +458,7 @@ public class IRCClient implements IRCEventListener
 	{
 		try
 		{
-			if(conman!=null)
+			if (conman != null)
 				this.conman.quit();
 			this.messageListener.disconnect();
 			this.messageListener.quit();

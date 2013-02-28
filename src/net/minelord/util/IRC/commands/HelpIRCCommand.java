@@ -24,11 +24,10 @@ public class HelpIRCCommand extends IRCCommand
 				this.message="Unknown command!";
 				return;
 			}
-			String temp = "<b>Commands:</b><br>";
-			temp += "&nbsp;&nbsp;- - -<br>";
-			temp += "&nbsp;&nbsp;"+getCommand(params[1].charAt(0)=='/'?params[1]:"/"+params[1]).getCommand() + "<br>";
-			temp += "&nbsp;&nbsp;"+getCommand(params[1].charAt(0)=='/'?params[1]:"/"+params[1]).getHelp() + "<br>";
-			temp += "&nbsp;- - -";
+			this.message = "&nbsp;&nbsp;- - -<br>";
+			this.message += "&nbsp;&nbsp;"+getCommand(params[0].charAt(0)=='/'?params[0]:"/"+params[0]).getCommand() + "<br>";
+			this.message += "&nbsp;&nbsp;"+getCommand(params[0].charAt(0)=='/'?params[0]:"/"+params[0]).getHelp() + "<br>";
+			this.message += "&nbsp;&nbsp;- - -";
 		}
 		else
 			this.message=getAllHelp();
