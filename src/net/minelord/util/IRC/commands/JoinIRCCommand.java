@@ -8,26 +8,14 @@ import net.minelord.util.IRC.IRCCommand;
 public class JoinIRCCommand extends IRCCommand
 {
 
-	public JoinIRCCommand(String command, String message, String help)
+	public JoinIRCCommand(String command, String message, String help, int minParams, int maxParams)
 	{
-		super(command, message, help);
+		super(command, message, help, minParams, maxParams);
 	}
 
 	@Override
 	public void execute(IRCClient client, String[] params)
 	{
-		if(params.length==0)
-		{
-			this.message="Too few parameters!";
-			this.color=IRCPane.errorColor;
-			return;
-		}
-		if(params.length>1)
-		{
-			this.message="Too many parameters!";
-			this.color=IRCPane.errorColor;
-			return;
-		}
 		if(IRCPane.instance!=null)
 		{
 			if(params[0].charAt(0)!='#')

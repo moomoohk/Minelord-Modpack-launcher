@@ -8,12 +8,10 @@ import net.minelord.util.IRC.IRCCommand;
 
 public class DebugIRCCommand extends IRCCommand
 {
-
-	public DebugIRCCommand(String command, String message, String help)
+	public DebugIRCCommand(String command, String message, String help, int minParams, int maxParams)
 	{
-		super(command, message, help); 
+		super(command, message, help, minParams, maxParams);
 	}
-
 	@Override
 	public void execute(final IRCClient client, String[] params)
 	{

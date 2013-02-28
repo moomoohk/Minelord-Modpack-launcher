@@ -6,10 +6,9 @@ import net.minelord.util.IRC.IRCCommand;
 
 public class ClearChatIRCCommand extends IRCCommand
 {
-
-	public ClearChatIRCCommand(String command, String message, String help)
+	public ClearChatIRCCommand(String command, String message, String help, int minParams, int maxParams)
 	{
-		super(command, message, help);
+		super(command, message, help, minParams, maxParams);
 	}
 
 	@Override

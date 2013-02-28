@@ -43,7 +43,6 @@ import java.util.Arrays;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
-import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -282,15 +281,8 @@ public class LaunchFrame extends JFrame implements IRCAlertListener
 	{
 		if(OSUtils.getCurrentOS()==OS.MACOSX)
 		{
-			try
-			{
-				Application application=Application.getApplication();
-				application.setDockIconImage(ImageIO.read(new URL("http://i.imgur.com/LxWFDsy.png")));
-			}
-			catch (IOException e1)
-			{
-				Logger.logInfo("Couldn't create Mac dock icon.");
-			}
+			Application application=Application.getApplication();
+			application.setDockIconImage(Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/image/logo_minelord_shine.png")));
 		}
 		setFont(new Font("a_FuturaOrto", Font.PLAIN, 12));
 		setResizable(false);

@@ -12,11 +12,13 @@ import jerklib.Session;
 import jerklib.events.IRCEvent;
 import jerklib.events.JoinCompleteEvent;
 import jerklib.events.JoinEvent;
+import jerklib.events.KickEvent;
 import jerklib.events.MessageEvent;
 import jerklib.events.NickChangeEvent;
 import jerklib.events.NoticeEvent;
 import jerklib.events.PartEvent;
 import jerklib.events.QuitEvent;
+import jerklib.events.WhoisEvent;
 import jerklib.events.modes.ModeAdjustment;
 import jerklib.events.modes.ModeEvent;
 import jerklib.listeners.IRCEventListener;
@@ -32,9 +34,10 @@ public class IRCClient implements IRCEventListener
 	private IRCAlertListener alertListener;
 	private Session s;
 
-	public void receiveEvent(IRCEvent e)
+	public void receiveEvent(final IRCEvent e)
 	{
-		String raw = e.getRawEventData(), message = "-UNCAUGHT EVENT " + e.getType();
+		final String raw = e.getRawEventData();
+		String message = "-UNCAUGHT EVENT " + e.getType();
 		EventToken token = new EventToken(raw);
 		switch (e.getType())
 		{
@@ -86,6 +89,65 @@ public class IRCClient implements IRCEventListener
 		case DEFAULT:
 			if (raw.contains("KICK"))
 			{
+				System.out.println(e.getRawEventData());
+				KickEvent ke=new KickEvent()
+				{
+					@Override
+					public Type getType()
+					{
+						return Type.KICK_EVENT;
+					}
+					
+					@Override
+					public Session getSession()
+					{
+						return e.getSession();
+					}
+					
+					@Override
+					public String getRawEventData()
+					{
+						return e.getRawEventData();
+					}
+					
+					@Override
+					public String getWho()
+					{
+						return raw.substring(raw.indexOf("KICK")).substring(6 + room.length(), raw.substring(raw.indexOf("KICK")).indexOf(":") - 1);
+					}
+					
+					@Override
+					public String getUserName()
+					{
+						// TODO Auto-generated method stub
+						return null;
+					}
+					
+					@Override
+					public String getMessage()
+					{
+						// TODO Auto-generated method stub
+						return null;
+					}
+					
+					@Override
+					public String getHostName()
+					{
+						return null;
+					}
+					
+					@Override
+					public Channel getChannel()
+					{
+						return channel;
+					}
+					
+					@Override
+					public String byWho()
+					{
+						return raw.substring(raw.indexOf("KICK"));
+					}
+				};
 				String sender = raw.substring(1, raw.indexOf('!'));
 				String kick = raw.substring(raw.indexOf("KICK")), reason = kick.substring(kick.indexOf(":") + 1);
 				String kicked = kick.substring(6 + this.room.length(), kick.indexOf(":") - 1);
@@ -202,6 +264,8 @@ public class IRCClient implements IRCEventListener
 			this.messageListener.updateUserList(IRCPane.sortType);
 			break;
 		case WHOIS_EVENT:
+			WhoisEvent whois=(WhoisEvent)e;
+			
 			printToken(token);
 			System.out.println("username: " + token.args().get(2));
 			System.out.println("host: " + token.arg(3));

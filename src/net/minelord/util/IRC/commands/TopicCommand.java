@@ -5,10 +5,10 @@ import net.minelord.gui.panes.IRCPane;
 import net.minelord.util.IRC.IRCClient;
 import net.minelord.util.IRC.IRCCommand;
 
-public class ActionIRCCommand extends IRCCommand
+public class TopicCommand extends IRCCommand
 {
 
-	public ActionIRCCommand(String command, String message, String help, int minParams, int maxParams)
+	public TopicCommand(String command, String message, String help, int minParams, int maxParams)
 	{
 		super(command, message, help, minParams, maxParams);
 	}
@@ -16,12 +16,11 @@ public class ActionIRCCommand extends IRCCommand
 	@Override
 	public void execute(IRCClient client, String[] params)
 	{
-		String action="";
-		for(int i=0; i<params.length; i++)
-			action+=params[i]+(i!=params.length-1?" ":"");
-		this.message="*"+client.getNick()+" "+action;
 		this.color=IRCPane.actionColor;
-		client.action(action);
+		if(params.length==0)
+			this.message=client.getTopic();
+		else
+			client.getChannel().setTopic(stringParams(params, 0));
 	}
 }
 

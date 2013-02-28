@@ -6,10 +6,9 @@ import net.minelord.util.IRC.IRCCommand;
 
 public class QuitIRCCommand extends IRCCommand
 {
-
-	public QuitIRCCommand(String command, String message, String help)
+	public QuitIRCCommand(String command, String message, String help, int minParams, int maxParams)
 	{
-		super(command, message, help);
+		super(command, message, help, minParams, maxParams);
 	}
 
 	@Override

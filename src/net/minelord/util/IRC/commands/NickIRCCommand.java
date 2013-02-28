@@ -6,10 +6,9 @@ import net.minelord.util.IRC.IRCCommand;
 
 public class NickIRCCommand extends IRCCommand
 {
-
-	public NickIRCCommand(String command, String message, String help)
+	public NickIRCCommand(String command, String message, String help, int minParams, int maxParams)
 	{
-		super(command, message, help);
+		super(command, message, help, minParams, maxParams);
 	}
 
 	@Override

@@ -7,10 +7,9 @@ import net.minelord.util.IRC.IRCCommand;
 
 public class ReplyIRCCommand extends IRCCommand
 {
-
-	public ReplyIRCCommand(String command, String message, String help)
+	public ReplyIRCCommand(String command, String message, String help, int minParams, int maxParams)
 	{
-		super(command, message, help);
+		super(command, message, help, minParams, maxParams);
 	}
 
 	@Override
